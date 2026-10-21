@@ -1208,7 +1208,7 @@
                     <td class="py-3.5 px-4 font-mono text-stone-700 font-bold">${r.phone}</td>
                     <td class="py-3.5 px-4 font-serif font-black text-castle-red text-base">${r.prizeName}</td>
                     <td class="py-3.5 px-4">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-black ${r.status === '已兌換' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-black ${r.status === '已作廢' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
                             ${r.status || '已通過審核'}
                         </span>
                     </td>
@@ -1227,7 +1227,7 @@
         window.toggleRecordStatus = async function(phone) {
             const record = allRecords.find(r => r.phone === phone);
             if (!record) return;
-            record.status = record.status === '已作廢' ? '已通過審核' : '已作廢';
+            record.status = record.status === '已作廢' ? '審核通過' : '已作廢';
             saveLocalRecords();
             if (db) {
                 try {
