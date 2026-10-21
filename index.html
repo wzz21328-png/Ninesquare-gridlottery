@@ -923,7 +923,7 @@ const firebaseConfig = {
 
                         if (db) {
                             try {
-                                const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                                const appId = 'ninesquare-c5d6f';
                                 const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
                                 await setDoc(doc(recordsRef, currentVerifiedUser.phone), recordData);
                             } catch(e) {}
@@ -1150,7 +1150,7 @@ const firebaseConfig = {
                 saveLocalRecords();
                 if (db) {
                     try {
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                        const appId = 'ninesquare-c5d6f';
                         for (const r of allRecords) {
                             await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', r.phone));
                         }
@@ -1162,7 +1162,7 @@ const firebaseConfig = {
                 saveLocalRecords();
                 if (db) {
                     try {
-                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                        const appId = 'ninesquare-c5d6f';
                         await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', action.phone));
                     } catch(e) {}
                 }
@@ -1239,7 +1239,7 @@ const firebaseConfig = {
             saveLocalRecords();
             if (db) {
                 try {
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                    const appId = 'ninesquare-c5d6f';
                     await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', phone), { status: record.status });
                 } catch(e) {}
             }
