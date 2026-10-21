@@ -780,7 +780,45 @@ const firebaseConfig = {
                         await signInAnonymously(auth);
                     }
 
-                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'ninesquare-c5d6f');
+// Initialize Firebase with LocalStorage Dual-Sync & Active Cloud Fetch
+        async function initSystem() {
+            loadLocalRecords();
+            try {
+                const appId = 'ninesquare-c5d6f';
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBQ96Ux349CFTAqYuKF9MfcfyqEISGp4n4",
+                    authDomain: "ninesquare-c5d6f.firebaseapp.com",
+                    projectId: "ninesquare-c5d6f",
+                    storageBucket: "ninesquare-c5d6f.appspot.com",
+                    messagingSenderId: "1067411953063",
+                    appId: "1:1067411953063:web:b4d534c2051de050b4d282",
+                    measurementId: "G-CLSGINZGC7"
+                };
+
+                if (firebaseConfig) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
+
+                    // 1. 一開機就主動從雲端抓取所有現有資料
+                    const querySnapshot = await getDocs(recordsRef);
+                    if (!querySnapshot.empty) {
+                        allRecords = [];
+                        querySnapshot.forEach(docSnap => {
+                            allRecords.push({ id: docSnap.id, ...docSnap.data() });
+                        });
+                        saveLocalRecords();
+                    }
+
+                    // 2. 同時掛上即時監聽，實現多裝置雙向同步
                     onSnapshot(recordsRef, (snapshot) => {
                         if (!snapshot.empty) {
                             allRecords = [];
@@ -792,6 +830,11 @@ const firebaseConfig = {
                     }, (err) => {
                         console.warn("Firestore snapshot fallback to local:", err);
                     });
+                }
+            } catch (err) {
+                console.warn("Using LocalStorage offline mode:", err);
+            }
+        }
                 }
             } catch (err) {
                 console.warn("Using LocalStorage offline mode:", err);
