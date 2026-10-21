@@ -150,6 +150,7 @@
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
 
         <div id="frontendView" class="space-y-6 sm:space-y-8">
+            <div class="text-center text-xs font-bold text-stone-700">抽獎紀錄以 Firebase 共用資料庫為準；雲端未連線時暫停抽獎。</div>
             <div class="text-center max-w-3xl mx-auto space-y-2 px-2">
                 <span class="inline-flex items-center space-x-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
                     <i class="fa-solid fa-star text-amber-600"></i>
@@ -435,7 +436,7 @@
                         <i class="fa-solid fa-chart-pie text-castle-red"></i>
                         <span>個別獎項中獎數量與佔比統計</span>
                     </h3>
-                    <span class="text-xs text-stone-600 font-bold">即時同步</span>
+                    <span id="cloudSyncStatus" class="text-xs font-bold text-red-700">● 雲端連線中</span>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="breakdownStatsGrid"></div>
             </div>
@@ -597,7 +598,7 @@
                 <p class="text-xs text-stone-700 font-bold" id="adminActionDesc">執行刪除或歸零操作需要驗證管理員密碼。</p>
             </div>
             <div class="space-y-4">
-                <input type="password" id="adminActionPasswordInput" placeholder="請輸入管理密碼 (wzz328)" 
+                <input type="password" id="adminActionPasswordInput" placeholder="請輸入管理密碼" 
                     class="w-full px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-castle-red text-center font-mono font-bold shadow-sm">
                 <div id="adminActionError" class="hidden text-xs text-red-600 text-center font-bold">密碼錯誤，拒絕執行</div>
                 <div class="flex space-x-2">
@@ -624,13 +625,41 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, runTransaction, writeBatch, updateDoc, deleteDoc, getDocFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let app, db, auth;
         let allRecords = [];
         let currentVerifiedUser = null; 
         let hasSpun = false;
         let pendingAction = null;
+        let cloudReady = false;
+        let cloudError = '';
+        let recordsRef = null;
+        const recordsCollectionPath = ['artifacts', 'ninesquare-c5d6f', 'public', 'data', 'castle_draw_records_v12'];
+
+        function setCloudStatus(ok, message) {
+            cloudReady = ok;
+            cloudError = ok ? '' : message;
+            const el = document.getElementById('cloudSyncStatus');
+            if (el) {
+                el.textContent = ok ? '● 雲端同步已連線' : '● 雲端未連線：' + message;
+                el.className = ok ? 'text-xs font-bold text-emerald-700' : 'text-xs font-bold text-red-700';
+            }
+            const btn = document.getElementById('registerBtn');
+            if (btn) btn.disabled = !ok;
+            if (!ok) {
+                const spinBtn = document.getElementById('spinActionBtn');
+                if (spinBtn) spinBtn.disabled = true;
+            }
+        }
+
+        function requireCloud() {
+            if (!cloudReady || !db || !recordsRef) {
+                showCustomModal('無法連接共用資料庫，請確認網路及 Firebase 設定。' + (cloudError ? '\n' + cloudError : ''), '雲端連線失敗', 'warning');
+                return false;
+            }
+            return true;
+        }
 
         // Web Audio Sound Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -728,30 +757,10 @@
             return gridCells[targetIndex];
         }
 
-        function loadLocalRecords() {
-            try {
-                const stored = localStorage.getItem('smile_castle_draw_records_v12');
-                if (stored) {
-                    allRecords = JSON.parse(stored);
-                }
-            } catch(e) {
-                allRecords = [];
-            }
-            updateStatsAndTable();
-        }
-
-        function saveLocalRecords() {
-            try {
-                localStorage.setItem('smile_castle_draw_records_v12', JSON.stringify(allRecords));
-            } catch(e) {}
-            updateStatsAndTable();
-        }
-
-        // Initialize Firebase with LocalStorage Dual-Sync & Active Cloud Fetch
+        // Firestore 是唯一真實資料來源；不以每台裝置的 localStorage 當抽獎紀錄。
         async function initSystem() {
-            loadLocalRecords();
+            setCloudStatus(false, '連線中，請稍候');
             try {
-                const appId = 'ninesquare-c5d6f';
                 const firebaseConfig = {
                     apiKey: "AIzaSyBQ96Ux349CFTAqYuKF9MfcfyqEISGp4n4",
                     authDomain: "ninesquare-c5d6f.firebaseapp.com",
@@ -761,45 +770,32 @@
                     appId: "1:1067411953063:web:b4d534c2051de050b4d282",
                     measurementId: "G-CLSGINZGC7"
                 };
-
-                if (firebaseConfig) {
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
-
-                    // 1. 一開機就主動從雲端抓取所有現有資料
-                    const querySnapshot = await getDocs(recordsRef);
-                    if (!querySnapshot.empty) {
-                        allRecords = [];
-                        querySnapshot.forEach(docSnap => {
-                            allRecords.push({ id: docSnap.id, ...docSnap.data() });
-                        });
-                        saveLocalRecords();
-                    }
-
-                    // 2. 同時掛上即時監聽，實現多裝置雙向同步
-                    onSnapshot(recordsRef, (snapshot) => {
-                        if (!snapshot.empty) {
-                            allRecords = [];
-                            snapshot.forEach(docSnap => {
-                                allRecords.push({ id: docSnap.id, ...docSnap.data() });
-                            });
-                            saveLocalRecords();
-                        }
-                    }, (err) => {
-                        console.warn("Firestore snapshot fallback to local:", err);
-                    });
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
                 }
+                recordsRef = collection(db, ...recordsCollectionPath);
+                onSnapshot(recordsRef, { includeMetadataChanges: true }, (snapshot) => {
+                    // 僅把伺服器確認的資料當作最新共用紀錄。
+                    if (snapshot.metadata.fromCache) {
+                        setCloudStatus(false, '目前只有快取資料，無法確認同步');
+                        return;
+                    }
+                    allRecords = snapshot.docs.map(item => ({ ...item.data(), id: item.id }));
+                    allRecords.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+                    updateStatsAndTable();
+                    setCloudStatus(true, '');
+                }, (err) => {
+                    console.error('Firestore 即時同步失敗:', err);
+                    setCloudStatus(false, err.code || err.message || '未知錯誤');
+                });
             } catch (err) {
-                console.warn("Using LocalStorage offline mode:", err);
+                console.error('Firebase 初始化或登入失敗:', err);
+                setCloudStatus(false, err.code || err.message || '未知錯誤');
             }
         }
 
@@ -824,6 +820,7 @@
 
         window.handleRegistration = function(e) {
             e.preventDefault();
+            if (!requireCloud()) return;
             const region = document.getElementById('custRegion').value;
             const plannerName = document.getElementById('plannerName').value.trim();
             const name = document.getElementById('custName').value.trim();
@@ -872,6 +869,7 @@
         };
 
         window.startGridSpin = function() {
+            if (!requireCloud()) return;
             if (!currentVerifiedUser) {
                 showCustomModal("請先完成身份與分店登記驗證！", "尚未驗證", "warning");
                 return;
@@ -923,15 +921,22 @@
                             status: '已通過審核'
                         };
 
-                        allRecords.unshift(recordData);
-                        saveLocalRecords();
-
-                        if (db) {
-                            try {
-                                const appId = 'ninesquare-c5d6f';
-                                const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
-                                await setDoc(doc(recordsRef, currentVerifiedUser.phone), recordData);
-                            } catch(e) {}
+                        // 以電話為固定文件 ID，transaction 原子檢查避免不同裝置重複抽獎。
+                        recordData.createdAtMs = Date.now();
+                        try {
+                            if (!requireCloud()) { hasSpun = false; return; }
+                            const recordRef = doc(recordsRef, currentVerifiedUser.phone);
+                            await runTransaction(db, async transaction => {
+                                const existing = await transaction.get(recordRef);
+                                if (existing.exists()) throw new Error('此手機號碼已參加抽獎，無法重複領取');
+                                transaction.set(recordRef, recordData);
+                            });
+                        } catch(e) {
+                            console.error('雲端儲存抽獎結果失敗:', e);
+                            hasSpun = false;
+                            showCustomModal('中獎結果尚未成功儲存至雲端，這次不發券。請確認連線後重新查詢或操作。\n' + (e.message || ''), '儲存失敗', 'warning');
+                            resetSession();
+                            return;
                         }
 
                         playWinFanfare();
@@ -1124,7 +1129,7 @@
             document.getElementById('adminActionError').classList.add('hidden');
             const descEl = document.getElementById('adminActionDesc');
             if (type === 'resetAll') {
-                descEl.innerText = "⚠️ 警告 : 您即將將「所有抽獎紀錄全部歸零」，此操作無法復原！請輸入管理員密碼 (wzz328) 以確認：";
+                descEl.innerText = "⚠️ 警告 : 您即將將「所有抽獎紀錄全部歸零」，此操作無法復原！請輸入管理員密碼以確認：";
             } else if (type === 'delete') {
                 descEl.innerText = `確定要刪除手機號碼為 ${phone} 的抽獎紀錄嗎？請輸入管理員密碼以確認：`;
             }
@@ -1148,28 +1153,31 @@
 
             if (!action) return;
 
+            if (!requireCloud()) return;
             if (action.type === 'resetAll') {
-                allRecords = [];
-                saveLocalRecords();
-                if (db) {
-                    try {
-                        const appId = 'ninesquare-c5d6f';
-                        for (const r of allRecords) {
-                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', r.phone));
-                        }
-                    } catch(e) {}
+                try {
+                    // 從共用雲端資料庫逐批刪除，不能先把清單設成空陣列。
+                    const { getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+                    const snapshot = await getDocs(recordsRef);
+                    const docs = snapshot.docs;
+                    for (let i = 0; i < docs.length; i += 400) {
+                        const batch = writeBatch(db);
+                        docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+                        await batch.commit();
+                    }
+                    showCustomModal('雲端抽獎紀錄已全部歸零，其他裝置會同步更新。', '歸零完成', 'success');
+                } catch(e) {
+                    console.error('歸零失敗:', e);
+                    showCustomModal('雲端歸零失敗或未完全完成：' + e.message, '操作失敗', 'warning');
                 }
-                showCustomModal("所有抽獎紀錄已重新歸零！", "歸零完成", "success");
             } else if (action.type === 'delete' && action.phone) {
-                allRecords = allRecords.filter(r => r.phone !== action.phone);
-                saveLocalRecords();
-                if (db) {
-                    try {
-                        const appId = 'ninesquare-c5d6f';
-                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', action.phone));
-                    } catch(e) {}
+                try {
+                    await deleteDoc(doc(recordsRef, action.phone));
+                    showCustomModal('已成功刪除雲端紀錄', '刪除成功', 'success');
+                } catch(e) {
+                    console.error('刪除失敗:', e);
+                    showCustomModal('雲端刪除失敗：' + e.message, '操作失敗', 'warning');
                 }
-                showCustomModal("已成功刪除該筆抽獎紀錄", "刪除成功", "success");
             }
         };
 
@@ -1177,7 +1185,7 @@
             const total = allRecords.length;
             const count9zhes = allRecords.filter(r => r.prizeName === '9折').length;
             const countCash = allRecords.filter(r => r.prizeType === 'cash').length;
-            const countApproved = allRecords.filter(r => r.status === '已通過審核' || !r.status).length;
+            const countApproved = allRecords.filter(r => r.status === '已通過審核' || r.status === '已審核通過' || !r.status).length;
 
             document.getElementById('statTotalCount').innerText = total;
             document.getElementById('stat9折Count').innerText = count9zhes;
@@ -1236,15 +1244,15 @@
         }
 
         window.toggleRecordStatus = async function(phone) {
+            if (!requireCloud()) return;
             const record = allRecords.find(r => r.phone === phone);
             if (!record) return;
-            record.status = record.status === '已作廢' ? '已審核通過' : '已作廢';
-            saveLocalRecords();
-            if (db) {
-                try {
-                    const appId = 'ninesquare-c5d6f';
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', phone), { status: record.status });
-                } catch(e) {}
+            const nextStatus = record.status === '已作廢' ? '已通過審核' : '已作廢';
+            try {
+                await updateDoc(doc(recordsRef, phone), { status: nextStatus });
+            } catch(e) {
+                console.error('更新審核狀態失敗:', e);
+                showCustomModal('審核狀態無法寫入雲端：' + e.message, '操作失敗', 'warning');
             }
         };
 
