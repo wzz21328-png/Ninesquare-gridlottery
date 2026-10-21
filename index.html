@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>微笑城堡窗簾 - 九宮格抽獎機</title>
+    <title>微笑城堡窗簾 - 達標專屬九宮格抽獎機系統</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -105,8 +105,8 @@
 
     <div class="bg-gradient-to-r from-castle-redDark via-castle-red to-castle-redDark text-white py-2 px-4 text-xs sm:text-sm font-bold tracking-wider overflow-hidden shadow-md shrink-0">
         <div class="whitespace-nowrap animate-marquee flex items-center space-x-12">
-            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 滿額專屬九宮格抽獎好禮大放送 ✨ 祝各位中大獎 ✨ 活動一滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
-            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i> 幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 滿額訂單直接折給你啦！</span>
+            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 達標貴賓專屬九宮格抽獎好禮大放送 ✨ 規劃師與貴賓請把握抽獎機會！</span>
+            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>🎁 幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 現金折抵券等你拿！</span>
         </div>
     </div>
 
@@ -122,7 +122,7 @@
                     <h1 class="font-serif font-black text-sm sm:text-lg md:text-2xl gold-gradient-text tracking-tight leading-tight">
                         微笑城堡窗簾
                     </h1>
-                    <p class="text-[9px] sm:text-xs text-amber-700 font-bold tracking-widest uppercase">九宮格抽獎機</p>
+                    <p class="text-[9px] sm:text-xs text-amber-700 font-bold tracking-widest uppercase">達標九宮格抽獎機</p>
                 </div>
             </div>
 
@@ -151,11 +151,11 @@
             <div class="text-center max-w-3xl mx-auto space-y-2 px-2">
                 <span class="inline-flex items-center space-x-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
                     <i class="fa-solid fa-star text-amber-600"></i>
-                    <span>滿額加碼・最高享 9 折與高額現金折價回饋</span>
+                    <span>達標貴賓專屬・最高享 9 折與高額現金折價回饋</span>
                     <i class="fa-solid fa-star text-amber-600"></i>
                 </span>
                 <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-black gold-gradient-text tracking-tight">
-                    滿額加碼九宮格抽獎機
+                    達標專屬九宮格抽獎機
                 </h2>
                 <p class="text-xs sm:text-sm text-stone-700 font-bold leading-relaxed px-2">
                     請規劃師選擇服務分店、輸入姓名與客戶電話。系統嚴格防重複，每組手機號碼僅限享 <strong class="text-castle-redDark font-extrabold">1 次</strong> 抽獎機會！
@@ -244,7 +244,7 @@
                     <!-- Active Session Box -->
                     <div id="activeSessionBox" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-1.5 shadow-inner">
                         <div class="flex items-center justify-between text-[11px] text-castle-redDark font-black uppercase">
-                            <span>✨ 已驗證符合資格</span>
+                            <span>✨ 已驗證合格貴賓</span>
                             <button onclick="playClickSound(); resetSession()" class="text-castle-red hover:underline font-extrabold cursor-pointer">重新登記</button>
                         </div>
                         <div class="text-xs sm:text-sm font-black text-stone-900 truncate" id="sessionCustomerDisplay"></div>
@@ -256,9 +256,9 @@
                     <div class="w-full flex items-center justify-between border-b border-amber-200 pb-3">
                         <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
                             <i class="fa-solid fa-dice text-castle-red animate-spin"></i>
-                            <span>滿額專屬九宮格抽獎機</span>
+                            <span>微笑城堡達標貴賓九宮格抽獎機</span>
                         </h3>
-                        <span id="slotStatusBadge" class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300">🔒 請先登記驗證</span>
+                        <span id="slotStatusBadge" class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300">🔒 請先左側登記驗證</span>
                     </div>
 
                     <!-- 9-Grid Machine Graphic Box -->
@@ -325,8 +325,8 @@
                     <!-- Bottom Marquee Prize List Notice -->
                     <div class="w-full bg-amber-50 rounded-full border border-amber-300 py-2.5 px-3 overflow-hidden shadow-sm">
                         <div class="whitespace-nowrap animate-marquee text-xs text-stone-700 font-bold flex items-center space-x-8">
-                            <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
-                            <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
+                            <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i>🎁 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 🎁</span>
+                            <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i>🎁 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 🎁</span>
                         </div>
                     </div>
                 </div>
@@ -342,7 +342,7 @@
                     <span>防漏截圖・快速折扣查詢專區</span>
                 </span>
                 <h2 class="font-serif text-2xl sm:text-3xl font-black gold-gradient-text">手機號碼補查折扣券</h2>
-                <p class="text-xs sm:text-sm text-stone-700 font-bold">若未及時截圖，可在此輸入客戶手機號碼快速查詢中獎折扣與票面憑證！</p>
+                <p class="text-xs sm:text-sm text-stone-700 font-bold">若業務未及時截圖，可在此輸入客戶手機號碼快速查詢中獎折扣與票面憑證！</p>
             </div>
 
             <div class="luxury-card rounded-3xl p-5 sm:p-8 space-y-6 shadow-xl">
@@ -481,7 +481,7 @@
     </main>
 
     <footer class="bg-stone-900 text-amber-200/90 border-t border-amber-400/40 mt-12 py-6 text-center text-xs font-bold px-4 shadow-inner shrink-0">
-        <p>© 2026 微笑城堡窗簾 Smile Castle Curtains. 滿額專屬九宮格抽獎. All Rights Reserved.</p>
+        <p>© 2026 微笑城堡窗簾 Smile Castle Curtains. 達標專屬九宮格抽獎系統. All Rights Reserved.</p>
     </footer>
 
     <!-- Result Modal / Coupon Ticket Screenshot Card Overlay -->
@@ -493,8 +493,8 @@
             </div>
 
             <div class="pt-3 space-y-1">
-                <span class="text-[11px] uppercase font-black tracking-widest text-castle-red">✨ 微笑城堡窗簾・滿額專屬折扣券憑證 ✨</span>
-                <h3 class="font-serif text-2xl sm:text-3xl font-black text-castle-redDark">恭喜中獎！</h3>
+                <span class="text-[11px] uppercase font-black tracking-widest text-castle-red">✨ 微笑城堡窗簾・達標貴賓專屬折扣券憑證 ✨</span>
+                <h3 class="font-serif text-2xl sm:text-3xl font-black text-castle-redDark">恭喜貴賓達標中獎！</h3>
             </div>
 
             <!-- Details Box -->
@@ -521,7 +521,7 @@
 
             <div class="bg-amber-100/70 border border-amber-300 rounded-2xl p-3 text-xs text-castle-redDark flex items-center space-x-2.5 text-left font-bold shadow-sm">
                 <i class="fa-solid fa-camera text-castle-red text-lg shrink-0"></i>
-                <span><strong>自動存入相簿：</strong>點擊下方按鈕將產生截圖並自動下載，亦可直接進行手機截圖！</span>
+                <span><strong>自動存入相簿：</strong>點擊下方按鈕將產生截圖並自動下載，手機用戶可長按圖片儲存至相簿！</span>
             </div>
 
             <div class="flex space-x-3 pt-1">
@@ -810,7 +810,7 @@
             const spinBtn = document.getElementById('spinActionBtn');
             spinBtn.disabled = true;
             spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            document.getElementById('slotStatusBadge').innerText = "🔒 請先登記驗證";
+            document.getElementById('slotStatusBadge').innerText = "🔒 請先左側登記驗證";
             document.getElementById('slotStatusBadge').className = "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300";
         };
 
@@ -868,6 +868,7 @@
                         };
 
                         try {
+                            // Saving to Firestore for real-time synchronization across all devices & admin views
                             if (db) {
                                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-machine-v2';
                                 const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v2');
@@ -890,6 +891,7 @@
                             colors: ['#f59e0b', '#b92b33', '#ffffff', '#fbbf24']
                         });
 
+                        // Ensure modal pops up immediately upon spin completion
                         showResultModal(currentVerifiedUser.region, currentVerifiedUser.plannerName, currentVerifiedUser.name, currentVerifiedUser.phone, winningPrize.name, recordData.timestamp);
                     }, 300);
                 }
@@ -917,7 +919,11 @@
 
             const modal = document.getElementById('resultModal');
             const card = document.getElementById('screenshotCard');
+            
+            // Explicitly remove hidden and trigger animation classes
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
             setTimeout(() => {
                 card.classList.remove('scale-95', 'opacity-0');
                 card.classList.add('scale-100', 'opacity-100');
@@ -930,6 +936,7 @@
             card.classList.remove('scale-100', 'opacity-100');
             card.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
+                modal.classList.remove('flex');
                 modal.classList.add('hidden');
                 window.resetSession();
             }, 200);
@@ -953,7 +960,7 @@
                     document.body.removeChild(downloadLink);
                     setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-                    showCustomModal("截圖檔案已產生並下載！手機版若未自動存入相簿，請直接進行手動截圖。", "截圖成功", "success");
+                    showCustomModal("截圖檔案已產生並下載！手機版若未自動存入相簿，請直接長按彈出視窗中的憑證圖片選擇「加入相簿」。", "截圖成功", "success");
                 }, 'image/png');
             }).catch(err => {
                 console.error("Screenshot error:", err);
@@ -998,7 +1005,7 @@
                             <div class="coupon-badge rounded-2xl p-4 border-2 border-dashed border-amber-500 shadow-sm space-y-1 inline-block w-full max-w-xs">
                                 <span class="text-[10px] bg-castle-red text-white px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-sm">${badgeText}</span>
                                 <div class="text-3xl font-serif font-black text-castle-red pt-1">${found.prizeName}</div>
-                                <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於下訂時立即抵扣</p>
+                                <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於現場結帳立即抵扣</p>
                             </div>
                         </div>
                         <div class="text-xs text-stone-700 pt-1 flex items-center justify-between font-bold">
@@ -1061,7 +1068,7 @@
             if (type === 'resetAll') {
                 descEl.innerText = "⚠️ 警告：您即將將「所有抽獎紀錄全部歸零」，此操作無法復原！請輸入管理員密碼 (wzz328) 以確認：";
             } else if (type === 'delete') {
-                descEl.innerText = `確定要刪除手機號碼為 ${phone} 的抽獎紀錄嗎？請輸入管理員密碼以確認：`;
+                descEl.innerText = `確定要刪除手機號碼為 ${phone} 的抽獎紀錄嗎？請輸入管理員密碼 (wzz328) 以確認：`;
             }
             document.getElementById('adminActionModal').classList.remove('hidden');
         };
