@@ -1001,7 +1001,7 @@
                 }, 'image/png');
             }).catch(err => {
                 console.error("Screenshot error:", err);
-                showCustomModal("截圖儲存失敗，請長按彈窗畫面進行手機手動截圖。", "提示", "warning");
+                showCustomModal("截圖儲存失敗，請直接進行手機手動截圖。", "提示", "warning");
             });
         };
 
@@ -1015,7 +1015,7 @@
             document.body.removeChild(downloadLink);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-            showCustomModal("截圖檔案已自動下載！手機版亦可直接「長按圖片」加入相簿或使用手機內建截圖。", "存入相簿成功", "success");
+            showCustomModal("截圖檔案已自動下載！手機版亦可直接手動截圖。", "存入相簿成功", "success");
         }
 
         window.performLookup = function() {
