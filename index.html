@@ -111,7 +111,7 @@
 
     <div class="bg-gradient-to-r from-castle-redDark via-castle-red to-castle-redDark text-white py-2 px-4 text-xs sm:text-sm font-bold tracking-wider overflow-hidden shadow-md shrink-0">
         <div class="whitespace-nowrap animate-marquee flex items-center space-x-12">
-            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 滿額專屬九宮格抽獎好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
+            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 滿額專屬九宮格抽獎機好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
             <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i> 滿額幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 直接折給你啦！</span>
         </div>
     </div>
@@ -711,12 +711,6 @@
             { index: 7, name: '500元', type: 'cash' }
         ];
 
-        // Exact Probability Weights Specified by User:
-        // - 500元 (四獎): 20% (indices 1, 7 -> 10% each)
-        // - 600元 (三獎): 25% (indices 3, 4 -> 12.5% each)
-        // - 800元 (二獎): 35% (indices 2, 5 -> 17.5% each)
-        // - 1000元 (頭獎): 12% (index 6)
-        // - 9折 (超級大獎): 3% (index 0)
         function getRandomWinningPrize() {
             const rand = Math.random() * 100;
             let targetIndex = 6;
@@ -734,7 +728,6 @@
             return gridCells[targetIndex];
         }
 
-        // LocalStorage Fallback & Sync Engine
         function loadLocalRecords() {
             try {
                 const stored = localStorage.getItem('smile_castle_draw_records_v12');
@@ -754,33 +747,7 @@
             updateStatsAndTable();
         }
 
-        // Initialize Firebase with LocalStorage Dual-Sync
-        async function initSystem() {
-            loadLocalRecords();
-            try {
-const appId = 'ninesquare-c5d6f';
-const firebaseConfig = {
-    apiKey: "AIzaSyBQ96Ux349CFTAqYuKF9MfcfyqEISGp4n4",
-    authDomain: "ninesquare-c5d6f.firebaseapp.com",
-    projectId: "ninesquare-c5d6f",
-    storageBucket: "ninesquare-c5d6f.appspot.com",
-    messagingSenderId: "1067411953063",
-    appId: "1:1067411953063:web:b4d534c2051de050b4d282",
-    measurementId: "G-CLSGINZGC7"
-};
-
-                if (firebaseConfig) {
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-// Initialize Firebase with LocalStorage Dual-Sync & Active Cloud Fetch
+        // Initialize Firebase with LocalStorage Dual-Sync & Active Cloud Fetch
         async function initSystem() {
             loadLocalRecords();
             try {
@@ -830,11 +797,6 @@ const firebaseConfig = {
                     }, (err) => {
                         console.warn("Firestore snapshot fallback to local:", err);
                     });
-                }
-            } catch (err) {
-                console.warn("Using LocalStorage offline mode:", err);
-            }
-        }
                 }
             } catch (err) {
                 console.warn("Using LocalStorage offline mode:", err);
@@ -998,7 +960,6 @@ const firebaseConfig = {
             document.getElementById('modalPrizeName').innerText = prizeName;
             document.getElementById('modalTimestamp').innerText = `時間：${timeStr}`;
 
-            // Populate hidden export container for flawless Proportional rendering
             document.getElementById('expCustRegion').innerText = region;
             document.getElementById('expPlannerName').innerText = plannerName;
             document.getElementById('expCustName').innerText = name;
@@ -1027,7 +988,6 @@ const firebaseConfig = {
             window.resetSession();
         };
 
-        // Screenshot capture using dedicated offscreen element (#exportContainer) to prevent text wrapping or layout bugs
         window.captureAndSaveScreenshot = function() {
             const exportEl = document.getElementById('exportContainer');
             html2canvas(exportEl, {
