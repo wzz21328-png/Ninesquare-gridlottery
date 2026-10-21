@@ -423,7 +423,7 @@
                         <i class="fa-solid fa-circle-check"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">已審核通過</p>
+                        <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">已稽核</p>
                         <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statApprovedCount">0</p>
                     </div>
                 </div>
@@ -448,12 +448,9 @@
                         <i class="fa-solid fa-list-ul text-castle-red"></i>
                         <span>抽獎名單與審核管理</span>
                     </h3>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
-                            <i class="fa-solid fa-search"></i>
-                        </span>
-                        <input type="text" id="adminSearchInput" onkeyup="filterAdminTable()" placeholder="搜尋姓名、電話或分店..." 
-                            class="pl-10 pr-4 py-2.5 bg-white border border-amber-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-castle-red font-bold w-full sm:w-72 shadow-sm">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span id="adminFilterCount" class="text-xs font-bold text-stone-600" aria-live="polite">顯示 0 筆</span>
+                        <button type="button" onclick="clearAdminFilters()" class="px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold text-castle-redDark hover:bg-amber-50">清除篩選</button>
                     </div>
                 </div>
 
@@ -469,6 +466,16 @@
                                 <th class="py-3.5 px-4">中獎票券</th>
                                 <th class="py-3.5 px-4">狀態</th>
                                 <th class="py-3.5 px-4 text-center">操作</th>
+                            </tr>
+                            <tr class="bg-white border-b border-amber-200 text-xs">
+                                <th class="px-2 py-2"><input type="text" id="filterTimestamp" oninput="filterAdminTable()" placeholder="日期／時間" aria-label="篩選抽獎時間" class="w-32 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal" /></th>
+                                <th class="px-2 py-2"><select id="filterRegion" onchange="filterAdminTable()" aria-label="篩選服務分店" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal"><option value="">全部分店</option></select></th>
+                                <th class="px-2 py-2"><select id="filterPlanner" onchange="filterAdminTable()" aria-label="篩選規劃師" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal"><option value="">全部規劃師</option></select></th>
+                                <th class="px-2 py-2"><input type="text" id="filterCustomer" oninput="filterAdminTable()" placeholder="搜尋客戶" aria-label="篩選客戶姓名" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal" /></th>
+                                <th class="px-2 py-2"><input type="text" id="filterPhone" oninput="filterAdminTable()" placeholder="搜尋手機" aria-label="篩選手機號碼" class="w-32 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal" /></th>
+                                <th class="px-2 py-2"><select id="filterPrize" onchange="filterAdminTable()" aria-label="篩選中獎票券" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal"><option value="">全部獎項</option></select></th>
+                                <th class="px-2 py-2"><select id="filterStatus" onchange="filterAdminTable()" aria-label="篩選審核狀態" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal"><option value="">全部狀態</option><option value="已稽核">已稽核</option><option value="已作廢">已作廢</option></select></th>
+                                <th class="px-2 py-2 text-center text-stone-500">—</th>
                             </tr>
                         </thead>
                         <tbody id="adminTableBody" class="divide-y divide-amber-100 text-xs sm:text-sm bg-white/70"></tbody>
@@ -761,17 +768,15 @@
         async function initSystem() {
             setCloudStatus(false, '連線中，請稍候');
             try {
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBQ96Ux349CfTAqYuKF9MfcfyqEISgp4n4",
-  authDomain: "ninesquare-c5d6f.firebaseapp.com",
-  projectId: "ninesquare-c5d6f",
-  storageBucket: "ninesquare-c5d6f.firebasestorage.app",
-  messagingSenderId: "1067411953063",
-  appId: "1:1067411953063:web:b4d534c2051de050b4d282",
-  measurementId: "G-CLSGZ7ZGC7"
-};
-
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBQ96Ux349CfTAqYuKF9MfcfyqEISgp4n4",
+                    authDomain: "ninesquare-c5d6f.firebaseapp.com",
+                    projectId: "ninesquare-c5d6f",
+                    storageBucket: "ninesquare-c5d6f.firebasestorage.app",
+                    messagingSenderId: "1067411953063",
+                    appId: "1:1067411953063:web:b4d534c2051de050b4d282",
+                    measurementId: "G-CLSGZ7ZGC7"
+                };
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -920,7 +925,7 @@ const firebaseConfig = {
                             prizeName: winningPrize.name,
                             prizeType: winningPrize.type,
                             timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
-                            status: '已通過審核'
+                            status: '已稽核'
                         };
 
                         // 以電話為固定文件 ID，transaction 原子檢查避免不同裝置重複抽獎。
@@ -1076,7 +1081,7 @@ const firebaseConfig = {
                             </div>
                         </div>
                         <div class="text-xs text-stone-700 pt-1 flex items-center justify-between font-bold">
-                            <span>審核狀態：<span class="text-emerald-700">${found.status || '已通過審核'}</span></span>
+                            <span>審核狀態：<span class="text-emerald-700">${displayAuditStatus(found.status)}</span></span>
                         </div>
                     </div>
                 `;
@@ -1183,11 +1188,91 @@ const firebaseConfig = {
             }
         };
 
+        // 舊版狀態只在畫面上正規化；不覆寫雲端歷史紀錄。
+        function displayAuditStatus(status) {
+            if (status === '已作廢') return '已作廢';
+            if (status === '已通過審核' || status === '已審核通過' || status === '已稽核' || !status) return '已稽核';
+            return status;
+        }
+
+        function syncFilterOptions(id, values, placeholder) {
+            const select = document.getElementById(id);
+            const previous = select.value;
+            const options = [...new Set(values.filter(Boolean))].sort((a,b) => a.localeCompare(b, 'zh-TW'));
+            select.replaceChildren(new Option(placeholder, ''));
+            options.forEach(value => select.add(new Option(value, value)));
+            select.value = options.includes(previous) ? previous : '';
+        }
+
+        function applyAdminFilters() {
+            const field = id => document.getElementById(id).value.trim().toLowerCase();
+            const timestamp = field('filterTimestamp');
+            const region = field('filterRegion');
+            const planner = field('filterPlanner');
+            const customer = field('filterCustomer');
+            const phone = field('filterPhone');
+            const prize = field('filterPrize');
+            const status = field('filterStatus');
+            const records = allRecords.filter(r =>
+                String(r.timestamp || '').toLowerCase().includes(timestamp) &&
+                (!region || String(r.region || '未指定').toLowerCase() === region) &&
+                (!planner || String(r.plannerName || '--').toLowerCase() === planner) &&
+                String(r.name || '').toLowerCase().includes(customer) &&
+                String(r.phone || '').toLowerCase().includes(phone) &&
+                (!prize || String(r.prizeName || '').toLowerCase() === prize) &&
+                (!status || displayAuditStatus(r.status).toLowerCase() === status)
+            );
+            document.getElementById('adminFilterCount').textContent = `顯示 ${records.length} / ${allRecords.length} 筆`;
+            return records;
+        }
+
+        window.filterAdminTable = function() { renderAdminTable(); };
+        window.clearAdminFilters = function() {
+            ['filterTimestamp','filterRegion','filterPlanner','filterCustomer','filterPhone','filterPrize','filterStatus']
+                .forEach(id => { document.getElementById(id).value = ''; });
+            renderAdminTable();
+        };
+
+        function renderAdminTable() {
+            const records = applyAdminFilters();
+            const tbody = document.getElementById('adminTableBody');
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-stone-500 font-bold text-sm">${allRecords.length ? '沒有符合篩選條件的紀錄' : '目前尚無任何抽獎紀錄'}</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = records.map(r => `
+                <tr class="hover:bg-amber-50/50 transition-all">
+                    <td class="py-3.5 px-4 text-xs font-mono text-stone-600 font-bold">${escapeTableText(r.timestamp || '--')}</td>
+                    <td class="py-3.5 px-4 font-bold text-stone-800 text-xs"><span class="px-2 py-1 rounded bg-amber-100 text-castle-redDark border border-amber-300">${escapeTableText(r.region || '未指定')}</span></td>
+                    <td class="py-3.5 px-4 font-bold text-stone-900">${escapeTableText(r.plannerName || '--')}</td>
+                    <td class="py-3.5 px-4 font-bold text-stone-900">${escapeTableText(r.name || '--')}</td>
+                    <td class="py-3.5 px-4 font-mono text-stone-700 font-bold">${escapeTableText(r.phone || '--')}</td>
+                    <td class="py-3.5 px-4 font-serif font-black text-castle-red text-base">${escapeTableText(r.prizeName || '--')}</td>
+                    <td class="py-3.5 px-4"><span class="px-3 py-1 rounded-full text-[11px] font-black ${displayAuditStatus(r.status) === '已作廢' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">${escapeTableText(displayAuditStatus(r.status))}</span></td>
+                    <td class="py-3.5 px-4 text-center space-x-1.5 whitespace-nowrap">
+                        <button type="button" data-phone="${escapeTableText(r.phone || '')}" data-action="status" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-castle-redDark rounded-lg text-xs font-bold transition-all border border-amber-300 cursor-pointer shadow-sm">狀態</button>
+                        <button type="button" data-phone="${escapeTableText(r.phone || '')}" data-action="delete" class="px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition-all border border-red-300 cursor-pointer shadow-sm">刪除</button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function escapeTableText(input) {
+            return String(input).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+        }
+
+        document.getElementById('adminTableBody').addEventListener('click', event => {
+            const button = event.target.closest('button[data-action]');
+            if (!button) return;
+            playClickSound();
+            if (button.dataset.action === 'status') toggleRecordStatus(button.dataset.phone);
+            if (button.dataset.action === 'delete') requestAdminAction('delete', button.dataset.phone);
+        });
+
         function updateStatsAndTable() {
             const total = allRecords.length;
             const count9zhes = allRecords.filter(r => r.prizeName === '9折').length;
             const countCash = allRecords.filter(r => r.prizeType === 'cash').length;
-            const countApproved = allRecords.filter(r => r.status === '已通過審核' || r.status === '已審核通過' || !r.status).length;
+            const countApproved = allRecords.filter(r => displayAuditStatus(r.status) === '已稽核').length;
 
             document.getElementById('statTotalCount').innerText = total;
             document.getElementById('stat9折Count').innerText = count9zhes;
@@ -1214,42 +1299,17 @@ const firebaseConfig = {
                 `;
             }).join('');
 
-            const tbody = document.getElementById('adminTableBody');
-            if (allRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-stone-500 font-bold text-sm">目前尚無任何抽獎紀錄</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = allRecords.map((r, idx) => `
-                <tr class="hover:bg-amber-50/50 transition-all">
-                    <td class="py-3.5 px-4 text-xs font-mono text-stone-600 font-bold">${r.timestamp || '--'}</td>
-                    <td class="py-3.5 px-4 font-bold text-stone-800 text-xs"><span class="px-2 py-1 rounded bg-amber-100 text-castle-redDark border border-amber-300">${r.region || '未指定'}</span></td>
-                    <td class="py-3.5 px-4 font-bold text-stone-900">${r.plannerName || '--'}</td>
-                    <td class="py-3.5 px-4 font-bold text-stone-900">${r.name}</td>
-                    <td class="py-3.5 px-4 font-mono text-stone-700 font-bold">${r.phone}</td>
-                    <td class="py-3.5 px-4 font-serif font-black text-castle-red text-base">${r.prizeName}</td>
-                    <td class="py-3.5 px-4">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-black ${r.status === '已作廢' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
-                            ${r.status || '已通過審核'}
-                        </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-center space-x-1.5 whitespace-nowrap">
-                        <button onclick="playClickSound(); toggleRecordStatus('${r.phone}')" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-castle-redDark rounded-lg text-xs font-bold transition-all border border-amber-300 cursor-pointer shadow-sm" title="切換審核狀態">
-                            狀態
-                        </button>
-                        <button onclick="playClickSound(); requestAdminAction('delete', '${r.phone}')" class="px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition-all border border-red-300 cursor-pointer shadow-sm" title="刪除紀錄">
-                            刪除
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            syncFilterOptions('filterRegion', allRecords.map(r => r.region || '未指定'), '全部分店');
+            syncFilterOptions('filterPlanner', allRecords.map(r => r.plannerName || '--'), '全部規劃師');
+            syncFilterOptions('filterPrize', allRecords.map(r => r.prizeName || ''), '全部獎項');
+            renderAdminTable();
         }
 
         window.toggleRecordStatus = async function(phone) {
             if (!requireCloud()) return;
             const record = allRecords.find(r => r.phone === phone);
             if (!record) return;
-            const nextStatus = record.status === '已作廢' ? '已通過審核' : '已作廢';
+            const nextStatus = displayAuditStatus(record.status) === '已作廢' ? '已稽核' : '已作廢';
             try {
                 await updateDoc(doc(recordsRef, phone), { status: nextStatus });
             } catch(e) {
@@ -1258,19 +1318,10 @@ const firebaseConfig = {
             }
         };
 
-        window.filterAdminTable = function() {
-            const query = document.getElementById('adminSearchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#adminTableBody tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        };
-
         window.exportDataCSV = function() {
             let csv = '\uFEFF抽獎時間,服務分店,規劃師姓名,客戶姓名,手機號碼,中獎票券,審核狀態\n';
             allRecords.forEach(r => {
-                csv += `"${r.timestamp}","${r.region || '未指定'}","${r.plannerName || '--'}","${r.name}","${r.phone}","${r.prizeName}","${r.status || '已通過審核'}"\n`;
+                csv += `"${r.timestamp}","${r.region || '未指定'}","${r.plannerName || '--'}","${r.name}","${r.phone}","${r.prizeName}","${displayAuditStatus(r.status)}"\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
