@@ -1227,7 +1227,7 @@
         window.toggleRecordStatus = async function(phone) {
             const record = allRecords.find(r => r.phone === phone);
             if (!record) return;
-            record.status = record.status === '已作廢' ? '審核通過' : '已作廢';
+            record.status = record.status === '已作廢' ? '已審核通過' : '已作廢';
             saveLocalRecords();
             if (db) {
                 try {
