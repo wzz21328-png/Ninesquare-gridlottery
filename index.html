@@ -780,7 +780,7 @@ const firebaseConfig = {
                         await signInAnonymously(auth);
                     }
 
-                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
+                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'ninesquare-c5d6f');
                     onSnapshot(recordsRef, (snapshot) => {
                         if (!snapshot.empty) {
                             allRecords = [];
