@@ -362,6 +362,7 @@
             </div>
         </div>
 
+        <!-- Admin View -->
         <div id="adminView" class="hidden space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 luxury-card p-5 sm:p-6 rounded-3xl shadow-xl">
                 <div>
@@ -482,19 +483,19 @@
     </footer>
 
     <div id="resultModal" style="display: none;" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-        <div id="screenshotCard" class="bg-gradient-to-b from-white via-amber-50 to-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl border-2 border-amber-400 relative flex flex-col justify-between items-center text-center animate-modal-bounce my-auto min-h-[460px]">
+        <div class="bg-gradient-to-b from-white via-amber-50 to-white rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl border-2 border-amber-400 relative flex flex-col justify-between items-center text-center animate-modal-bounce my-auto min-h-[460px]">
             <!-- Crown Top -->
             <div class="absolute -top-7 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-castle-red to-castle-redDark text-amber-300 flex items-center justify-center shadow-lg border-2 border-amber-400">
                 <i class="fa-solid fa-crown text-xl"></i>
             </div>
 
-            <!-- Top Header Section (Vertically Centered) -->
+            <!-- Top Header -->
             <div class="w-full pt-2 flex flex-col justify-center items-center space-y-1">
                 <span class="text-[11px] uppercase font-black tracking-widest text-castle-red block">✨ 微笑城堡窗簾・滿額專屬折扣券憑證 ✨</span>
                 <h3 class="font-serif text-2xl sm:text-3xl font-black text-castle-redDark">恭喜中獎！</h3>
             </div>
 
-            <!-- Middle Details & Ticket Box (Vertically Centered) -->
+            <!-- Middle Details Box -->
             <div class="w-full my-auto py-2 space-y-3">
                 <div class="bg-white rounded-2xl p-3.5 border border-amber-300 shadow-inner space-y-2 text-left text-xs font-bold">
                     <div class="flex justify-between items-center text-stone-700 border-b border-amber-200 pb-2">
@@ -518,11 +519,11 @@
                 </div>
             </div>
 
-            <!-- Bottom Action Controls Section (Vertically Centered) -->
+            <!-- Bottom Action Controls -->
             <div class="w-full space-y-3 pb-1">
                 <div class="bg-amber-100/70 border border-amber-300 rounded-2xl p-2.5 text-[11px] text-castle-redDark flex items-center justify-center space-x-2 text-center font-bold shadow-sm">
                     <i class="fa-solid fa-camera text-castle-red text-base shrink-0"></i>
-                    <span><strong>一鍵存相簿：</strong>點擊右側按鈕自動下載圖檔！</span>
+                    <span><strong>一鍵存相簿：</strong>點擊右側按鈕自動下載完整憑證圖檔！</span>
                 </div>
 
                 <div class="flex space-x-2.5">
@@ -538,7 +539,33 @@
         </div>
     </div>
 
-    <!-- Admin Password Login Modal -->
+    <div id="exportContainer" style="position: fixed; left: -9999px; top: 0; width: 420px; background: #fffdf9; padding: 28px; border-radius: 24px; border: 3px solid #f59e0b; box-shadow: 0 20px 40px rgba(0,0,0,0.2); font-family: 'Plus Jakarta Sans', 'Noto Serif TC', sans-serif; text-align: center; box-sizing: border-box;">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #b92b33 0%, #8b1e24 100%); color: #fbbf24; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 24px; border: 2px solid #fbbf24;">
+            <i class="fa-solid fa-crown"></i>
+        </div>
+        <div style="font-size: 11px; font-weight: 900; letter-spacing: 2px; color: #b92b33; text-transform: uppercase; margin-bottom: 4px;">✨ 微笑城堡窗簾・滿額專屬折扣券憑證 ✨</div>
+        <div style="font-family: 'Noto Serif TC', serif; font-size: 28px; font-weight: 900; color: #2c1810; margin-bottom: 16px;">恭喜中獎！</div>
+
+        <div style="background: #ffffff; border: 1.5px solid #f59e0b; border-radius: 16px; padding: 16px; text-align: left; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #444; border-bottom: 1px solid #fef3c7; padding-bottom: 8px; margin-bottom: 8px;">
+                <span>分店：<strong id="expCustRegion" style="color: #8b1e24;">--</strong></span>
+                <span>規劃師：<strong id="expPlannerName" style="color: #8b1e24;">--</strong></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 6px;">
+                <span>客戶：<strong id="expCustName" style="color: #8b1e24;">--</strong></span>
+                <span>電話：<strong id="expCustPhone" style="color: #8b1e24; font-family: monospace;">--</strong></span>
+            </div>
+            <div style="font-size: 10px; color: #777; font-family: monospace; text-align: center; margin-bottom: 12px;" id="expTimestamp">--</div>
+
+            <div style="background: linear-gradient(135deg, #fffdf9 0%, #fef3c7 100%); border: 1.5px dashed #d97706; border-radius: 14px; padding: 16px; text-align: center;">
+                <span id="expBadgeLabel" style="display: inline-block; background: #b92b33; color: #ffffff; font-size: 10px; font-weight: 900; padding: 3px 12px; border-radius: 9999px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">微笑城堡專屬折扣券</span>
+                <div id="expPrizeName" style="font-family: 'Noto Serif TC', serif; font-size: 36px; font-weight: 900; color: #b92b33; line-height: 1.1; margin-bottom: 4px;">--</div>
+                <div style="font-size: 10px; color: #555; font-weight: bold;">憑此電子票面截圖於現場結帳立即抵扣</div>
+            </div>
+        </div>
+        <div style="font-size: 10px; color: #888; font-weight: bold;">© 2026 微笑城堡窗簾 Smile Castle Curtains. All Rights Reserved.</div>
+    </div>
+
     <div id="adminLoginModal" style="display: none;" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
             <div class="text-center space-y-2">
@@ -560,7 +587,6 @@
         </div>
     </div>
 
-    <!-- Admin Action Password Verification Modal -->
     <div id="adminActionModal" style="display: none;" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
             <div class="text-center space-y-2">
@@ -582,7 +608,6 @@
         </div>
     </div>
 
-    <!-- Custom Notification Modal -->
     <div id="customModal" style="display: none;" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="luxury-card rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
             <div id="customModalIcon" class="w-14 h-14 rounded-full bg-amber-100 text-castle-redDark flex items-center justify-center mx-auto text-xl border border-amber-300">
@@ -596,31 +621,16 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let app, db, auth;
         let allRecords = [];
         let currentVerifiedUser = null; 
         let hasSpun = false;
         let pendingAction = null;
-
-        // Load records from localStorage for 100% reliable offline & GitHub Pages support
-        function loadRecords() {
-            try {
-                const stored = localStorage.getItem('smile_castle_draw_records_v9');
-                if (stored) {
-                    allRecords = JSON.parse(stored);
-                }
-            } catch(e) {
-                allRecords = [];
-            }
-            updateStatsAndTable();
-        }
-
-        function saveRecords() {
-            try {
-                localStorage.setItem('smile_castle_draw_records_v9', JSON.stringify(allRecords));
-            } catch(e) {}
-            updateStatsAndTable();
-        }
 
         // Web Audio Sound Synthesizer
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -701,7 +711,7 @@
             { index: 7, name: '500元', type: 'cash' }
         ];
 
-        // Exact Probability Distribution Specified by User:
+        // Exact Probability Weights Specified by User:
         // - 500元 (四獎): 20% (indices 1, 7 -> 10% each)
         // - 600元 (三獎): 25% (indices 3, 4 -> 12.5% each)
         // - 800元 (二獎): 35% (indices 2, 5 -> 17.5% each)
@@ -722,6 +732,62 @@
                 targetIndex = Math.random() < 0.5 ? 1 : 7; // 500元 (20%)
             }
             return gridCells[targetIndex];
+        }
+
+        // LocalStorage Fallback & Sync Engine
+        function loadLocalRecords() {
+            try {
+                const stored = localStorage.getItem('smile_castle_draw_records_v12');
+                if (stored) {
+                    allRecords = JSON.parse(stored);
+                }
+            } catch(e) {
+                allRecords = [];
+            }
+            updateStatsAndTable();
+        }
+
+        function saveLocalRecords() {
+            try {
+                localStorage.setItem('smile_castle_draw_records_v12', JSON.stringify(allRecords));
+            } catch(e) {}
+            updateStatsAndTable();
+        }
+
+        // Initialize Firebase with LocalStorage Dual-Sync
+        async function initSystem() {
+            loadLocalRecords();
+            try {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+                if (firebaseConfig) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
+                    onSnapshot(recordsRef, (snapshot) => {
+                        if (!snapshot.empty) {
+                            allRecords = [];
+                            snapshot.forEach(docSnap => {
+                                allRecords.push({ id: docSnap.id, ...docSnap.data() });
+                            });
+                            saveLocalRecords();
+                        }
+                    }, (err) => {
+                        console.warn("Firestore snapshot fallback to local:", err);
+                    });
+                }
+            } catch (err) {
+                console.warn("Using LocalStorage offline mode:", err);
+            }
         }
 
         window.switchView = function(viewName) {
@@ -831,7 +897,7 @@
                     }
                     setTimeout(runStep, speed);
                 } else {
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         const recordData = {
                             region: currentVerifiedUser.region,
                             plannerName: currentVerifiedUser.plannerName,
@@ -845,7 +911,15 @@
                         };
 
                         allRecords.unshift(recordData);
-                        saveRecords();
+                        saveLocalRecords();
+
+                        if (db) {
+                            try {
+                                const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                                const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12');
+                                await setDoc(doc(recordsRef, currentVerifiedUser.phone), recordData);
+                            } catch(e) {}
+                        }
 
                         playWinFanfare();
                         speakWinMessage(winningPrize.name);
@@ -873,13 +947,25 @@
             document.getElementById('modalPrizeName').innerText = prizeName;
             document.getElementById('modalTimestamp').innerText = `時間：${timeStr}`;
 
+            // Populate hidden export container for flawless Proportional rendering
+            document.getElementById('expCustRegion').innerText = region;
+            document.getElementById('expPlannerName').innerText = plannerName;
+            document.getElementById('expCustName').innerText = name;
+            document.getElementById('expCustPhone').innerText = phone;
+            document.getElementById('expTimestamp').innerText = `時間：${timeStr}`;
+            document.getElementById('expPrizeName').innerText = prizeName;
+
             const badgeLabel = document.getElementById('modalBadgeLabel');
+            const expBadgeLabel = document.getElementById('expBadgeLabel');
             if (prizeName === '9折') {
                 badgeLabel.innerText = "✨ 超級大獎 ✨";
+                expBadgeLabel.innerText = "✨ 超級大獎 ✨";
             } else if (prizeName === '1000元') {
                 badgeLabel.innerText = "✨ 頭獎 ✨";
+                expBadgeLabel.innerText = "✨ 頭獎 ✨";
             } else {
                 badgeLabel.innerText = "微笑城堡專屬折扣券";
+                expBadgeLabel.innerText = "微笑城堡專屬折扣券";
             }
 
             document.getElementById('resultModal').style.display = 'flex';
@@ -890,13 +976,13 @@
             window.resetSession();
         };
 
-        // Direct html2canvas Screenshot & Direct Mobile Photo Album Saving Engine
+        // Screenshot capture using dedicated offscreen element (#exportContainer) to prevent text wrapping or layout bugs
         window.captureAndSaveScreenshot = function() {
-            const card = document.getElementById('screenshotCard');
-            html2canvas(card, {
-                scale: 2,
+            const exportEl = document.getElementById('exportContainer');
+            html2canvas(exportEl, {
+                scale: 3,
                 useCORS: true,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#fffdf9'
             }).then(canvas => {
                 canvas.toBlob(blob => {
                     const file = new File([blob], `微笑城堡窗簾中獎折扣券_${currentVerifiedUser ? currentVerifiedUser.phone : 'coupon'}.png`, { type: 'image/png' });
@@ -1039,7 +1125,7 @@
             pendingAction = null;
         };
 
-        window.confirmAdminAction = function() {
+        window.confirmAdminAction = async function() {
             const pwd = document.getElementById('adminActionPasswordInput').value;
             if (pwd !== 'wzz328') {
                 document.getElementById('adminActionError').classList.remove('hidden');
@@ -1053,11 +1139,25 @@
 
             if (action.type === 'resetAll') {
                 allRecords = [];
-                saveRecords();
+                saveLocalRecords();
+                if (db) {
+                    try {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                        for (const r of allRecords) {
+                            await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', r.phone));
+                        }
+                    } catch(e) {}
+                }
                 showCustomModal("所有抽獎紀錄已重新歸零！", "歸零完成", "success");
             } else if (action.type === 'delete' && action.phone) {
                 allRecords = allRecords.filter(r => r.phone !== action.phone);
-                saveRecords();
+                saveLocalRecords();
+                if (db) {
+                    try {
+                        const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', action.phone));
+                    } catch(e) {}
+                }
                 showCustomModal("已成功刪除該筆抽獎紀錄", "刪除成功", "success");
             }
         };
@@ -1124,11 +1224,17 @@
             `).join('');
         }
 
-        window.toggleRecordStatus = function(phone) {
+        window.toggleRecordStatus = async function(phone) {
             const record = allRecords.find(r => r.phone === phone);
             if (!record) return;
             record.status = record.status === '已作廢' ? '已通過審核' : '已作廢';
-            saveRecords();
+            saveLocalRecords();
+            if (db) {
+                try {
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-v12';
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v12', phone), { status: record.status });
+                } catch(e) {}
+            }
         };
 
         window.filterAdminTable = function() {
@@ -1172,7 +1278,7 @@
         };
 
         window.onload = function() {
-            loadRecords();
+            initSystem();
         };
     </script>
 </body>
