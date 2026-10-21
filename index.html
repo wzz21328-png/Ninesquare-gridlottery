@@ -1,1247 +1,1079 @@
-<!DOCTYPE html>
-<html lang="zh-TW" class="h-full">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>微笑城堡窗簾 - 達標專屬九宮格抽獎機系統</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- html2canvas for Direct Image Saving -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        castle: {
-                            redDark: '#8b1e24',
-                            red: '#b92b33',
-                            redLight: '#e03a42',
-                            gold: '#f59e0b',
-                            goldLight: '#fbbf24',
-                            cream: '#fffdf9',
-                            cardBg: '#ffffff',
-                            textDark: '#2c1810'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['"Plus Jakarta Sans"', '"Noto Serif TC"', 'sans-serif'],
-                        serif: ['"Noto Serif TC"', 'serif']
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', 'Noto Serif TC', sans-serif;
-            background: linear-gradient(135deg, #fff5f5 0%, #ffe4e6 50%, #fef3c7 100%);
-            color: #2c1810;
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-            overflow-x: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .luxury-card {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            box-shadow: 0 15px 35px rgba(185, 43, 51, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-            color: #2c1810;
-        }
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #b92b33 0%, #d97706 50%, #92400e 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        /* 9-Grid Machine Frame Styling */
-        .machine-frame {
-            background: linear-gradient(135deg, #b92b33 0%, #8b1e24 100%);
-            border: 5px solid #f59e0b;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.35), inset 0 0 25px rgba(245, 158, 11, 0.4);
-        }
-        .grid-cell {
-            background: #fffdf9;
-            border: 2px solid #f59e0b;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.06);
-            transition: all 0.15s ease-in-out;
-        }
-        .grid-cell.active {
-            background: #fef08a !important;
-            border-color: #e03a42 !important;
-            transform: scale(1.04);
-            box-shadow: 0 0 22px rgba(225, 58, 66, 0.8);
-        }
-        /* Coupon Ticket Badge Style */
-        .coupon-badge {
-            background: linear-gradient(135deg, #fffdf9 0%, #fef3c7 100%);
-            border: 1.5px dashed #d97706;
-            box-shadow: 0 4px 12px rgba(185, 43, 51, 0.08);
-            position: relative;
-        }
-        /* Marquee Animation */
-        @keyframes marquee {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-        .animate-marquee {
-            display: inline-block;
-            white-space: nowrap;
-            animation: marquee 30s linear infinite;
-        }
-    </style>
-</head>
-<body class="flex flex-col justify-between selection:bg-castle-gold selection:text-white">
-
-    <div class="bg-gradient-to-r from-castle-redDark via-castle-red to-castle-redDark text-white py-2 px-4 text-xs sm:text-sm font-bold tracking-wider overflow-hidden shadow-md shrink-0">
-        <div class="whitespace-nowrap animate-marquee flex items-center space-x-12">
-            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 達標貴賓專屬九宮格抽獎好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
-            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i> 幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 滿額訂單直接折給你啦！</span>
-        </div>
+<!-- Top Marquee Banner -->
+<div class="bg-gradient-to-r from-castle-redDark via-castle-red to-castle-redDark text-white py-2 px-4 text-xs sm:text-sm font-bold tracking-wider overflow-hidden shadow-md shrink-0">
+    <div class="whitespace-nowrap animate-marquee flex items-center space-x-12">
+        <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 達標貴賓專屬九宮格抽獎好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
+        <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i> 幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 滿額訂單直接折給你啦！</span>
     </div>
+</div>
 
-    <header class="bg-white/95 backdrop-blur-md border-b border-amber-200 sticky top-0 z-40 shadow-sm shrink-0">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <div class="flex items-center space-x-2 cursor-pointer shrink-0" onclick="playClickSound(); switchView('frontend')">
-                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-castle-red to-castle-redDark flex items-center justify-center text-white shadow-md border-2 border-amber-400 shrink-0">
-                    <i class="fa-solid fa-chess-rook text-base sm:text-xl text-amber-300"></i>
-                </div>
-                <div class="whitespace-nowrap">
-                    <h1 class="font-serif font-black text-sm sm:text-lg md:text-2xl gold-gradient-text tracking-tight leading-tight">
-                        微笑城堡窗簾
-                    </h1>
-                    <p class="text-[9px] sm:text-xs text-amber-700 font-bold tracking-widest uppercase">九宮格抽獎機</p>
-                </div>
+<!-- Header Navigation -->
+<header class="bg-white/95 backdrop-blur-md border-b border-amber-200 sticky top-0 z-40 shadow-sm shrink-0">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        
+        <div class="flex items-center space-x-2 cursor-pointer shrink-0" onclick="playClickSound(); switchView('frontend')">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-castle-red to-castle-redDark flex items-center justify-center text-white shadow-md border-2 border-amber-400 shrink-0">
+                <i class="fa-solid fa-chess-rook text-base sm:text-xl text-amber-300"></i>
             </div>
-
-            <div class="flex items-center space-x-1 sm:space-x-2.5 shrink-0">
-                <button onclick="playClickSound(); switchView('frontend')" id="navFrontendBtn" class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer">
-                    <i class="fa-solid fa-gamepad"></i>
-                    <span class="hidden xs:inline">抽獎專區</span>
-                </button>
-                <button onclick="playClickSound(); switchView('lookup')" id="navLookupBtn" class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-50 text-castle-redDark hover:bg-amber-100 flex items-center space-x-1.5 border border-amber-300 cursor-pointer">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <span class="hidden xs:inline">查詢折扣</span>
-                </button>
-                <button onclick="playClickSound(); handleAdminAccess()" id="navAdminBtn" class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-stone-900 text-amber-300 hover:bg-stone-800 flex items-center space-x-1.5 border border-amber-400 cursor-pointer shadow-sm">
-                    <i class="fa-solid fa-lock" id="adminLockIcon"></i>
-                    <span class="hidden xs:inline">後台管理</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
-
-        <div id="frontendView" class="space-y-6 sm:space-y-8">
-            <div class="text-center max-w-3xl mx-auto space-y-2 px-2">
-                <span class="inline-flex items-center space-x-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
-                    <i class="fa-solid fa-star text-amber-600"></i>
-                    <span>達標貴賓專屬・最高享 9 折與高額現金折價回饋</span>
-                    <i class="fa-solid fa-star text-amber-600"></i>
-                </span>
-                <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-black gold-gradient-text tracking-tight">
-                    達標貴賓專屬九宮格抽獎機
-                </h2>
-                <p class="text-xs sm:text-sm text-stone-700 font-bold leading-relaxed px-2">
-                    請規劃師選擇服務分店、輸入姓名與客戶電話。系統嚴格防重複，每組手機號碼僅限享 <strong class="text-castle-redDark font-extrabold">1 次</strong> 抽獎機會！
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start max-w-6xl mx-auto">
-                
-                <!-- Registration Form -->
-                <div class="lg:col-span-5 luxury-card rounded-3xl p-4 sm:p-6 md:p-7 space-y-4 shadow-xl">
-                    <div class="border-b border-amber-200 pb-3 flex items-center justify-between">
-                        <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
-                            <i class="fa-solid fa-user-pen text-castle-red"></i>
-                            <span>規劃師與客戶資料登記</span>
-                        </h3>
-                        <span class="text-[10px] sm:text-[11px] px-2.5 py-1 rounded-full bg-amber-100 text-castle-redDark font-mono font-black border border-amber-300">STEP 1</span>
-                    </div>
-
-                    <form id="customerForm" onsubmit="handleRegistration(event)" class="space-y-3.5">
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">服務地區 / 分店</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
-                                    <i class="fa-solid fa-location-dot"></i>
-                                </span>
-                                <select id="custRegion" required class="w-full pl-10 pr-8 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all appearance-none cursor-pointer font-bold">
-                                    <option value="" disabled selected>請選擇服務分店 / 地區</option>
-                                    <option value="新莊店">新莊店</option>
-                                    <option value="桃園店">桃園店</option>
-                                    <option value="新竹店">新竹店</option>
-                                    <option value="台中店">台中店</option>
-                                    <option value="彰化店">彰化店</option>
-                                    <option value="台南店">台南店</option>
-                                    <option value="左營店">左營店</option>
-                                    <option value="建國店">建國店</option>
-                                </select>
-                                <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-stone-500">
-                                    <i class="fa-solid fa-chevron-down text-xs"></i>
-                                </span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">規劃師姓名</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
-                                    <i class="fa-solid fa-id-badge"></i>
-                                </span>
-                                <input type="text" id="plannerName" required placeholder="請輸入您的姓名" 
-                                    class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-bold">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">下訂客戶姓名</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
-                                    <i class="fa-regular fa-user"></i>
-                                </span>
-                                <input type="text" id="custName" required placeholder="例如：張先生 / 李小姐" 
-                                    class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-bold">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">客戶手機號碼 (防重複識別)</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
-                                    <i class="fa-solid fa-phone"></i>
-                                </span>
-                                <input type="tel" id="custPhone" required placeholder="例如：0912345678" pattern="[0-9]{10}" title="請輸入10位數字手機號碼"
-                                    class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-mono font-bold">
-                            </div>
-                            <p class="text-[11px] text-red-600 font-bold mt-1">※ 系統防呆：同電話號碼僅能參與抽獎一次。</p>
-                        </div>
-
-                        <div id="formFeedback" class="hidden p-3 rounded-2xl text-xs sm:text-sm font-bold flex items-start space-x-2 shadow-sm"></div>
-
-                        <button type="submit" id="registerBtn" class="w-full py-3.5 px-4 bg-gradient-to-r from-castle-red to-castle-redLight hover:from-castle-redDark hover:to-castle-red text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer border border-amber-400">
-                            <span>驗證身份並解鎖抽獎機</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </form>
-
-                    <div id="activeSessionBox" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-1.5 shadow-inner">
-                        <div class="flex items-center justify-between text-[11px] text-castle-redDark font-black uppercase">
-                            <span>✨ 已驗證符合資格</span>
-                            <button onclick="playClickSound(); resetSession()" class="text-castle-red hover:underline font-extrabold cursor-pointer">重新登記</button>
-                        </div>
-                        <div class="text-xs sm:text-sm font-black text-stone-900 truncate" id="sessionCustomerDisplay"></div>
-                    </div>
-                </div>
-
-                <!-- 9-Grid Machine Section (Index 6 = 頭獎 1000元 at Bottom-Left Corner) -->
-                <div class="lg:col-span-7 luxury-card rounded-3xl p-4 sm:p-6 md:p-7 flex flex-col items-center justify-center text-center space-y-5 shadow-xl">
-                    <div class="w-full flex items-center justify-between border-b border-amber-200 pb-3">
-                        <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
-                            <i class="fa-solid fa-dice text-castle-red animate-spin"></i>
-                            <span>達標貴賓專屬九宮格抽獎機</span>
-                        </h3>
-                        <span id="slotStatusBadge" class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300">🔒 請先登記驗證</span>
-                    </div>
-
-                    <div class="machine-frame w-full max-w-sm rounded-3xl p-3 sm:p-5 space-y-4 shadow-2xl relative">
-                        <div class="grid grid-cols-3 gap-2 sm:gap-3">
-                            <!-- Cell 0: 超級大獎 (9折) -->
-                            <div id="cell-0" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-castle-red text-white px-1.5 py-0.5 rounded-full font-black tracking-tighter mb-0.5 shadow-sm whitespace-nowrap">✨ 超級大獎 ✨</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-castle-red whitespace-nowrap">9折優惠</span>
-                                <span class="text-[9px] text-stone-500 font-bold whitespace-nowrap">全館訂單適用</span>
-                            </div>
-                            <!-- Cell 1: 四獎 (500元) -->
-                            <div id="cell-1" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">四獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-amber-700">500元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                            <!-- Cell 2: 二獎 (800元) -->
-                            <div id="cell-2" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">二獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-amber-700">800元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                            <!-- Cell 7 (Index 7): 四獎 (500元) -->
-                            <div id="cell-7" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">四獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-amber-700">500元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                            <!-- Cell 4 Center Action Button -->
-                            <div class="h-20 sm:h-24 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white shadow-md">
-                                <button id="spinActionBtn" disabled onclick="startGridSpin()" class="w-full h-full rounded-2xl text-white font-serif font-black text-xs sm:text-sm opacity-50 cursor-not-allowed transition-all hover:scale-105 active:scale-95 flex flex-col items-center justify-center space-y-0.5 p-1 cursor-pointer">
-                                    <i class="fa-solid fa-gamepad text-base sm:text-xl"></i>
-                                    <span>立即抽獎</span>
-                                </button>
-                            </div>
-                            <!-- Cell 3 (Index 3): 三獎 (600元) -->
-                            <div id="cell-3" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">三獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-amber-700">600元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                            <!-- Cell 6 (Index 6): 頭獎 (1000元) - Left Bottom Corner -->
-                            <div id="cell-6" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-castle-red text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">頭獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-castle-red">1000元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                            <!-- Cell 5 (Index 5): 二獎 (800元) -->
-                            <div id="cell-5" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">二獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-amber-700">800元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                            <!-- Cell 4 (Index 4): 三獎 (600元) -->
-                            <div id="cell-4" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
-                                <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">三獎</span>
-                                <span class="text-sm sm:text-lg font-serif font-black text-amber-700">600元</span>
-                                <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bottom Marquee Prize List Notice -->
-                    <div class="w-full bg-amber-50 rounded-full border border-amber-300 py-2.5 px-3 overflow-hidden shadow-sm">
-                        <div class="whitespace-nowrap animate-marquee text-xs text-stone-700 font-bold flex items-center space-x-8">
-                            <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
-                            <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
-                        </div>
-                    </div>
-                </div>
-
+            <div class="whitespace-nowrap">
+                <h1 class="font-serif font-black text-sm sm:text-lg md:text-2xl gold-gradient-text tracking-tight leading-tight">
+                    微笑城堡窗簾
+                </h1>
+                <p class="text-[9px] sm:text-xs text-amber-700 font-bold tracking-widest uppercase">九宮格抽獎機</p>
             </div>
         </div>
 
-        <div id="lookupView" class="hidden max-w-xl mx-auto space-y-6">
-            <div class="text-center space-y-2">
-                <span class="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                    <span>防漏截圖・快速折扣查詢專區</span>
-                </span>
-                <h2 class="font-serif text-2xl sm:text-3xl font-black gold-gradient-text">手機號碼補查折扣券</h2>
-                <p class="text-xs sm:text-sm text-stone-700 font-bold">若未及時截圖，可在此輸入客戶手機號碼快速查詢中獎折扣與票面憑證！</p>
-            </div>
-
-            <div class="luxury-card rounded-3xl p-5 sm:p-8 space-y-6 shadow-xl">
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">輸入查詢手機號碼</label>
-                        <div class="flex space-x-2">
-                            <input type="tel" id="lookupPhoneInput" placeholder="例如：0912345678" 
-                                class="flex-grow px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red font-mono font-bold shadow-sm">
-                            <button onclick="playClickSound(); performLookup()" class="px-5 py-3.5 bg-gradient-to-r from-castle-red to-castle-redLight text-white font-bold rounded-2xl hover:opacity-95 transition-all shadow-md flex items-center space-x-2 border border-amber-400 cursor-pointer text-xs sm:text-sm shrink-0">
-                                <i class="fa-solid fa-search"></i>
-                                <span>查詢</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="lookupResultContainer" class="hidden pt-4 border-t border-amber-200"></div>
-            </div>
-        </div>
-
-        <div id="adminView" class="hidden space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 luxury-card p-5 sm:p-6 rounded-3xl shadow-xl">
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="px-2.5 py-1 rounded bg-castle-red text-white text-[10px] font-black uppercase tracking-wider">Admin Dashboard</span>
-                        <h2 class="font-serif text-xl sm:text-2xl font-black text-castle-redDark">後台管理與折扣券數據統計</h2>
-                    </div>
-                    <p class="text-xs sm:text-sm text-stone-600 font-bold mt-1">即時檢視各地區抽獎明細、個別獎項中獎數量與佔比統計、審核狀態與報表匯出。</p>
-                </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="playClickSound(); exportDataCSV()" class="px-3.5 py-2.5 bg-amber-100 hover:bg-amber-200 text-castle-redDark font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-amber-300 shadow-sm cursor-pointer">
-                        <i class="fa-solid fa-file-excel"></i>
-                        <span>匯出 CSV</span>
-                    </button>
-                    <button onclick="playClickSound(); requestAdminAction('resetAll')" class="px-3.5 py-2.5 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-red-300 cursor-pointer">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        <span>資料歸零</span>
-                    </button>
-                    <button onclick="playClickSound(); lockAdmin()" class="px-3.5 py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-amber-400 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-lock-open"></i>
-                        <span>登出後台</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
-                <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-castle-redDark flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">總抽獎人數</p>
-                        <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statTotalCount">0</p>
-                    </div>
-                </div>
-                <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
-                        <i class="fa-solid fa-award"></i>
-                    </div>
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">超級大獎數</p>
-                        <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="stat9折Count">0</p>
-                    </div>
-                </div>
-                <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
-                        <i class="fa-solid fa-hand-holding-dollar"></i>
-                    </div>
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">現金折價券總數</p>
-                        <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statCashCount">0</p>
-                    </div>
-                </div>
-                <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                    <div>
-                        <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">已審核通過</p>
-                        <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statApprovedCount">0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="luxury-card rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
-                <div class="flex items-center justify-between border-b border-amber-200 pb-3">
-                    <h3 class="font-serif font-bold text-base sm:text-lg text-castle-redDark flex items-center space-x-2">
-                        <i class="fa-solid fa-chart-pie text-castle-red"></i>
-                        <span>個別獎項中獎數量與佔比統計</span>
-                    </h3>
-                    <span class="text-xs text-stone-600 font-bold">即時同步</span>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="breakdownStatsGrid"></div>
-            </div>
-
-            <div class="luxury-card rounded-3xl overflow-hidden shadow-xl">
-                <div class="p-5 sm:p-6 border-b border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/80">
-                    <h3 class="font-serif font-bold text-base sm:text-lg text-castle-redDark flex items-center space-x-2">
-                        <i class="fa-solid fa-list-ul text-castle-red"></i>
-                        <span>抽獎名單與審核管理</span>
-                    </h3>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
-                            <i class="fa-solid fa-search"></i>
-                        </span>
-                        <input type="text" id="adminSearchInput" onkeyup="filterAdminTable()" placeholder="搜尋姓名、電話或分店..." 
-                            class="pl-10 pr-4 py-2.5 bg-white border border-amber-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-castle-red font-bold w-full sm:w-72 shadow-sm">
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[780px]">
-                        <thead>
-                            <tr class="bg-amber-50 text-castle-redDark text-xs font-black uppercase tracking-wider border-b border-amber-200">
-                                <th class="py-3.5 px-4">抽獎時間</th>
-                                <th class="py-3.5 px-4">服務分店</th>
-                                <th class="py-3.5 px-4">規劃師</th>
-                                <th class="py-3.5 px-4">客戶姓名</th>
-                                <th class="py-3.5 px-4">手機號碼</th>
-                                <th class="py-3.5 px-4">中獎票券</th>
-                                <th class="py-3.5 px-4">狀態</th>
-                                <th class="py-3.5 px-4 text-center">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminTableBody" class="divide-y divide-amber-100 text-xs sm:text-sm bg-white/70"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <footer class="bg-stone-900 text-amber-200/90 border-t border-amber-400/40 mt-12 py-6 text-center text-xs font-bold px-4 shadow-inner shrink-0">
-        <p>© 2026 微笑城堡窗簾 Smile Castle Curtains. 達標貴賓專屬九宮格抽獎. All Rights Reserved.</p>
-    </footer>
-
-    <div id="resultModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div id="screenshotCard" class="bg-gradient-to-b from-white via-amber-50 to-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-amber-400 relative space-y-4 text-center transform transition-all scale-95 opacity-0">
-            <div class="absolute -top-7 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-castle-red to-castle-redDark text-amber-300 flex items-center justify-center shadow-lg border-2 border-amber-400">
-                <i class="fa-solid fa-crown text-xl"></i>
-            </div>
-
-            <div class="pt-3 space-y-1">
-                <span class="text-[11px] uppercase font-black tracking-widest text-castle-red">✨ 微笑城堡窗簾・滿額專屬折扣券憑證 ✨</span>
-                <h3 class="font-serif text-2xl sm:text-3xl font-black text-castle-redDark">恭喜中獎！</h3>
-            </div>
-
-            <div class="bg-white rounded-2xl p-4 border border-amber-300 shadow-inner space-y-2.5 text-left text-xs font-bold">
-                <div class="flex justify-between items-center text-stone-700 border-b border-amber-200 pb-2">
-                    <span>分店：<strong id="modalCustRegion" class="text-castle-redDark">--</strong></span>
-                    <span>規劃師：<strong id="modalPlannerName" class="text-castle-redDark">--</strong></span>
-                </div>
-                <div class="flex justify-between items-center text-stone-700 pb-1">
-                    <span>客戶：<strong id="modalCustName" class="text-castle-redDark">--</strong></span>
-                    <span>電話：<strong id="modalCustPhone" class="text-castle-redDark font-mono">--</strong></span>
-                </div>
-                <div class="text-[11px] text-stone-500 font-mono text-center pt-0.5" id="modalTimestamp">--</div>
-                
-                <div class="pt-3 text-center">
-                    <div class="coupon-badge rounded-2xl p-4 border-2 border-dashed border-amber-500 shadow-sm space-y-1">
-                        <span class="text-[10px] bg-castle-red text-white px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-sm" id="modalBadgeLabel">微笑城堡專屬折扣券</span>
-                        <div class="text-3xl sm:text-4xl font-serif font-black text-castle-red pt-1" id="modalPrizeName">--</div>
-                        <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於現場結帳立即抵扣</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-amber-100/70 border border-amber-300 rounded-2xl p-3 text-xs text-castle-redDark flex items-center space-x-2.5 text-left font-bold shadow-sm">
-                <i class="fa-solid fa-camera text-castle-red text-lg shrink-0"></i>
-                <span><strong>自動存入相簿：</strong>點擊下方按鈕將產生截圖並自動下載，亦可直接進行手機截圖！</span>
-            </div>
-
-            <div class="flex space-x-3 pt-1">
-                <button onclick="playClickSound(); closeResultModal()" class="flex-1 py-3 px-3 bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold rounded-2xl text-xs sm:text-sm transition-all cursor-pointer">
-                    關閉視窗
-                </button>
-                <button onclick="playClickSound(); captureAndSaveScreenshot()" class="flex-1 py-3 px-3 bg-gradient-to-r from-castle-red to-castle-redLight text-white font-bold rounded-2xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center space-x-1.5 border border-amber-400 cursor-pointer">
-                    <i class="fa-solid fa-camera-retro"></i>
-                    <span>一鍵截圖存相簿</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="adminLoginModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <div class="text-center space-y-2">
-                <div class="w-14 h-14 bg-castle-redDark text-amber-300 rounded-full flex items-center justify-center mx-auto text-xl shadow-md border border-amber-400">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <h3 class="font-serif font-black text-xl text-castle-redDark">後台管理員登入</h3>
-                <p class="text-xs text-stone-700 font-bold">請輸入後台審核密碼</p>
-            </div>
-            <div class="space-y-4">
-                <input type="password" id="adminPasswordInput" placeholder="請輸入密碼" 
-                    class="w-full px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-castle-red text-center font-mono font-bold shadow-sm">
-                <div id="adminLoginError" class="hidden text-xs text-red-600 text-center font-bold">密碼錯誤，請重新輸入</div>
-                <div class="flex space-x-2">
-                    <button onclick="playClickSound(); closeAdminModal()" class="flex-1 py-3 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-sm transition-all cursor-pointer">取消</button>
-                    <button onclick="playClickSound(); verifyAdminPassword()" class="flex-1 py-3 bg-castle-red hover:bg-castle-redDark text-white font-bold rounded-xl text-sm transition-all shadow-md border border-amber-400 cursor-pointer">登入後台</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="adminActionModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
-            <div class="text-center space-y-2">
-                <div class="w-14 h-14 bg-red-700 text-white rounded-full flex items-center justify-center mx-auto text-xl shadow-md border border-amber-400">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h3 class="font-serif font-black text-xl text-castle-redDark">安全確認・請輸入管理密碼</h3>
-                <p class="text-xs text-stone-700 font-bold" id="adminActionDesc">執行刪除或歸零操作需要驗證管理員密碼。</p>
-            </div>
-            <div class="space-y-4">
-                <input type="password" id="adminActionPasswordInput" placeholder="請輸入管理密碼 (wzz328)" 
-                    class="w-full px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-castle-red text-center font-mono font-bold shadow-sm">
-                <div id="adminActionError" class="hidden text-xs text-red-600 text-center font-bold">密碼錯誤，拒絕執行</div>
-                <div class="flex space-x-2">
-                    <button onclick="playClickSound(); closeAdminActionModal()" class="flex-1 py-3 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-sm transition-all cursor-pointer">取消</button>
-                    <button onclick="playClickSound(); confirmAdminAction()" class="flex-1 py-3 bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl text-sm transition-all shadow-md border border-amber-400 cursor-pointer">確認執行</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="customModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="luxury-card rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
-            <div id="customModalIcon" class="w-14 h-14 rounded-full bg-amber-100 text-castle-redDark flex items-center justify-center mx-auto text-xl border border-amber-300">
-                <i class="fa-solid fa-circle-exclamation"></i>
-            </div>
-            <h4 id="customModalTitle" class="font-serif font-black text-lg text-castle-redDark">提示訊息</h4>
-            <p id="customModalMessage" class="text-sm text-stone-700 leading-relaxed font-bold">--</p>
-            <button onclick="playClickSound(); closeCustomModal()" class="w-full py-3.5 bg-castle-red hover:bg-castle-redDark text-white font-bold rounded-xl text-sm transition-all shadow-md border border-amber-400 cursor-pointer">
-                我知道了
+        <div class="flex items-center space-x-1 sm:space-x-2.5 shrink-0">
+            <button onclick="playClickSound(); switchView('frontend')" id="navFrontendBtn" class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer">
+                <i class="fa-solid fa-gamepad"></i>
+                <span class="hidden xs:inline">抽獎專區</span>
+            </button>
+            <button onclick="playClickSound(); switchView('lookup')" id="navLookupBtn" class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-50 text-castle-redDark hover:bg-amber-100 flex items-center space-x-1.5 border border-amber-300 cursor-pointer">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span class="hidden xs:inline">查詢折扣</span>
+            </button>
+            <button onclick="playClickSound(); handleAdminAccess()" id="navAdminBtn" class="px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-stone-900 text-amber-300 hover:bg-stone-800 flex items-center space-x-1.5 border border-amber-400 cursor-pointer shadow-sm">
+                <i class="fa-solid fa-lock" id="adminLockIcon"></i>
+                <span class="hidden xs:inline">後台管理</span>
             </button>
         </div>
     </div>
+</header>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+<main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
 
-        let app, db, auth;
-        let allRecords = [];
-        let currentVerifiedUser = null; 
-        let hasSpun = false;
-        let pendingAction = null;
+    <!-- Frontend View -->
+    <div id="frontendView" class="space-y-6 sm:space-y-8">
+        <div class="text-center max-w-3xl mx-auto space-y-2 px-2">
+            <span class="inline-flex items-center space-x-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
+                <i class="fa-solid fa-star text-amber-600"></i>
+                <span>達標貴賓專屬・最高享 9 折與高額現金折價回饋</span>
+                <i class="fa-solid fa-star text-amber-600"></i>
+            </span>
+            <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-black gold-gradient-text tracking-tight">
+                達標貴賓專屬九宮格抽獎機
+            </h2>
+            <p class="text-xs sm:text-sm text-stone-700 font-bold leading-relaxed px-2">
+                請規劃師選擇服務分店、輸入姓名與客戶電話。系統嚴格防重複，每組手機號碼僅限享 <strong class="text-castle-redDark font-extrabold">1 次</strong> 抽獎機會！
+            </p>
+        </div>
 
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
-        window.playClickSound = function() {
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.08);
-            } catch(e) {}
-        };
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start max-w-6xl mx-auto">
+            
+            <!-- Registration Form -->
+            <div class="lg:col-span-5 luxury-card rounded-3xl p-4 sm:p-6 md:p-7 space-y-4 shadow-xl">
+                <div class="border-b border-amber-200 pb-3 flex items-center justify-between">
+                    <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
+                        <i class="fa-solid fa-user-pen text-castle-red"></i>
+                        <span>規劃師與客戶資料登記</span>
+                    </h3>
+                    <span class="text-[10px] sm:text-[11px] px-2.5 py-1 rounded-full bg-amber-100 text-castle-redDark font-mono font-black border border-amber-300">STEP 1</span>
+                </div>
 
-        window.playGridTickSound = function() {
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(750, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.05);
-            } catch(e) {}
-        };
+                <form id="customerForm" onsubmit="handleRegistration(event)" class="space-y-3.5">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">服務地區 / 分店</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </span>
+                            <select id="custRegion" required class="w-full pl-10 pr-8 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all appearance-none cursor-pointer font-bold">
+                                <option value="" disabled selected>請選擇服務分店 / 地區</option>
+                                <option value="新莊店">新莊店</option>
+                                <option value="桃園店">桃園店</option>
+                                <option value="新竹店">新竹店</option>
+                                <option value="台中店">台中店</option>
+                                <option value="彰化店">彰化店</option>
+                                <option value="台南店">台南店</option>
+                                <option value="左營店">左營店</option>
+                                <option value="建國店">建國店</option>
+                            </select>
+                            <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-stone-500">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </span>
+                        </div>
+                    </div>
 
-        window.playWinFanfare = function() {
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.12);
-                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime + idx * 0.12);
-                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.12 + 0.3);
-                    osc.connect(gain);
-                    gain.connect(audioCtx.destination);
-                    osc.start(audioCtx.currentTime + idx * 0.12);
-                    osc.stop(audioCtx.currentTime + idx * 0.12 + 0.3);
-                });
-            } catch(e) {}
-        };
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">規劃師姓名</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
+                                <i class="fa-solid fa-id-badge"></i>
+                            </span>
+                            <input type="text" id="plannerName" required placeholder="請輸入您的姓名" 
+                                class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-bold">
+                        </div>
+                    </div>
 
-        window.speakWinMessage = function(prizeName) {
-            try {
-                if ('speechSynthesis' in window) {
-                    window.speechSynthesis.cancel();
-                    const utterance = new SpeechSynthesisUtterance(`恭喜中獎！抽中 ${prizeName}！`);
-                    utterance.lang = 'zh-TW';
-                    utterance.rate = 1.0;
-                    utterance.pitch = 1.05;
-                    window.speechSynthesis.speak(utterance);
-                }
-            } catch(e) {}
-        };
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">下訂客戶姓名</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
+                                <i class="fa-regular fa-user"></i>
+                            </span>
+                            <input type="text" id="custName" required placeholder="例如：張先生 / 李小姐" 
+                                class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-bold">
+                        </div>
+                    </div>
 
-        // 9-Grid Cells Configuration in Clockwise Order (0 to 7) matching Cell 6 = 1000元 頭獎 (Bottom-Left Corner)
-        const gridCells = [
-            { index: 0, name: '9折', type: 'discount' },
-            { index: 1, name: '500元', type: 'cash' },
-            { index: 2, name: '800元', type: 'cash' },
-            { index: 3, name: '600元', type: 'cash' },
-            { index: 4, name: '600元', type: 'cash' },
-            { index: 5, name: '800元', type: 'cash' },
-            { index: 6, name: '1000元', type: 'cash' }, // Bottom-Left Corner 頭獎 (1000元)
-            { index: 7, name: '500元', type: 'cash' }
-        ];
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">客戶手機號碼 (防重複識別)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
+                                <i class="fa-solid fa-phone"></i>
+                            </span>
+                            <input type="tel" id="custPhone" required placeholder="例如：0912345678" pattern="[0-9]{10}" title="請輸入10位數字手機號碼"
+                                class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-mono font-bold">
+                        </div>
+                        <p class="text-[11px] text-red-600 font-bold mt-1">※ 系統防呆：同電話號碼僅能參與抽獎一次。</p>
+                    </div>
 
-        // Optimized Winning Probabilities:
-        // - 9折 (超級大獎): 5% (index 0)
-        // - 1000元 (頭獎): 40% (index 6)
-        // - 800元 (二獎): 35% (indices 2, 5)
-        // - 600元 (三獎): 12% (indices 3, 4)
-        // - 500元 (四獎): 8% (indices 1, 7)
-        function getRandomWinningPrize() {
-            const rand = Math.random() * 100;
-            let targetIndex = 6;
-            if (rand < 5) {
-                targetIndex = 0;
-            } else if (rand < 45) {
-                targetIndex = 6;
-            } else if (rand < 80) {
-                targetIndex = Math.random() < 0.5 ? 2 : 5;
-            } else if (rand < 92) {
-                targetIndex = Math.random() < 0.5 ? 3 : 4;
-            } else {
-                targetIndex = Math.random() < 0.5 ? 1 : 7;
-            }
-            return gridCells[targetIndex];
+                    <div id="formFeedback" class="hidden p-3 rounded-2xl text-xs sm:text-sm font-bold flex items-start space-x-2 shadow-sm"></div>
+
+                    <button type="submit" id="registerBtn" class="w-full py-3.5 px-4 bg-gradient-to-r from-castle-red to-castle-redLight hover:from-castle-redDark hover:to-castle-red text-white font-bold text-xs sm:text-sm rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2 cursor-pointer border border-amber-400">
+                        <span>驗證身份並解鎖抽獎機</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <div id="activeSessionBox" class="hidden p-3.5 rounded-2xl bg-amber-50 border border-amber-300 space-y-1.5 shadow-inner">
+                    <div class="flex items-center justify-between text-[11px] text-castle-redDark font-black uppercase">
+                        <span>✨ 已驗證符合資格</span>
+                        <button onclick="playClickSound(); resetSession()" class="text-castle-red hover:underline font-extrabold cursor-pointer">重新登記</button>
+                    </div>
+                    <div class="text-xs sm:text-sm font-black text-stone-900 truncate" id="sessionCustomerDisplay"></div>
+                </div>
+            </div>
+
+            <!-- 9-Grid Machine Section -->
+            <div class="lg:col-span-7 luxury-card rounded-3xl p-4 sm:p-6 md:p-7 flex flex-col items-center justify-center text-center space-y-5 shadow-xl">
+                <div class="w-full flex items-center justify-between border-b border-amber-200 pb-3">
+                    <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
+                        <i class="fa-solid fa-dice text-castle-red animate-spin"></i>
+                        <span>達標貴賓專屬九宮格抽獎機</span>
+                    </h3>
+                    <span id="slotStatusBadge" class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300">🔒 請先登記驗證</span>
+                </div>
+
+                <div class="machine-frame w-full max-w-sm rounded-3xl p-3 sm:p-5 space-y-4 shadow-2xl relative">
+                    <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                        <!-- Cell 0: 超級大獎 (9折) -->
+                        <div id="cell-0" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-castle-red text-white px-1.5 py-0.5 rounded-full font-black tracking-tighter mb-0.5 shadow-sm whitespace-nowrap">✨ 超級大獎 ✨</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-castle-red whitespace-nowrap">9折優惠</span>
+                            <span class="text-[9px] text-stone-500 font-bold whitespace-nowrap">全館訂單適用</span>
+                        </div>
+                        <!-- Cell 1: 四獎 (500元) -->
+                        <div id="cell-1" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">四獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-amber-700">500元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                        <!-- Cell 2: 二獎 (800元) -->
+                        <div id="cell-2" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">二獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-amber-700">800元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                        <!-- Cell 7 (Index 7): 四獎 (500元) -->
+                        <div id="cell-7" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">四獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-amber-700">500元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                        <!-- Cell 4 Center Action Button -->
+                        <div class="h-20 sm:h-24 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white shadow-md">
+                            <button id="spinActionBtn" disabled onclick="startGridSpin()" class="w-full h-full rounded-2xl text-white font-serif font-black text-xs sm:text-sm opacity-50 cursor-not-allowed transition-all hover:scale-105 active:scale-95 flex flex-col items-center justify-center space-y-0.5 p-1 cursor-pointer">
+                                <i class="fa-solid fa-gamepad text-base sm:text-xl"></i>
+                                <span>立即抽獎</span>
+                            </button>
+                        </div>
+                        <!-- Cell 3 (Index 3): 三獎 (600元) -->
+                        <div id="cell-3" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">三獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-amber-700">600元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                        <!-- Cell 6 (Index 6): 頭獎 (1000元) - Left Bottom Corner -->
+                        <div id="cell-6" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-castle-red text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">頭獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-castle-red">1000元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                        <!-- Cell 5 (Index 5): 二獎 (800元) -->
+                        <div id="cell-5" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">二獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-amber-700">800元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                        <!-- Cell 4 (Index 4): 三獎 (600元) -->
+                        <div id="cell-4" class="grid-cell coupon-badge h-20 sm:h-24 rounded-2xl flex flex-col items-center justify-center p-1 text-castle-redDark">
+                            <span class="text-[9px] sm:text-[10px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-black tracking-widest mb-0.5 shadow-sm">三獎</span>
+                            <span class="text-sm sm:text-lg font-serif font-black text-amber-700">600元</span>
+                            <span class="text-[9px] text-stone-500 font-bold">現金折抵券</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Marquee Prize List Notice -->
+                <div class="w-full bg-amber-50 rounded-full border border-amber-300 py-2.5 px-3 overflow-hidden shadow-sm">
+                    <div class="whitespace-nowrap animate-marquee text-xs text-stone-700 font-bold flex items-center space-x-8">
+                        <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
+                        <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Lookup View -->
+    <div id="lookupView" class="hidden max-w-xl mx-auto space-y-6">
+        <div class="text-center space-y-2">
+            <span class="inline-flex items-center space-x-1.5 px-4 py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>防漏截圖・快速折扣查詢專區</span>
+            </span>
+            <h2 class="font-serif text-2xl sm:text-3xl font-black gold-gradient-text">手機號碼補查折扣券</h2>
+            <p class="text-xs sm:text-sm text-stone-700 font-bold">若未及時截圖，可在此輸入客戶手機號碼快速查詢中獎折扣與票面憑證！</p>
+        </div>
+
+        <div class="luxury-card rounded-3xl p-5 sm:p-8 space-y-6 shadow-xl">
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5">輸入查詢手機號碼</label>
+                    <div class="flex space-x-2">
+                        <input type="tel" id="lookupPhoneInput" placeholder="例如：0912345678" 
+                            class="flex-grow px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red font-mono font-bold shadow-sm">
+                        <button onclick="playClickSound(); performLookup()" class="px-5 py-3.5 bg-gradient-to-r from-castle-red to-castle-redLight text-white font-bold rounded-2xl hover:opacity-95 transition-all shadow-md flex items-center space-x-2 border border-amber-400 cursor-pointer text-xs sm:text-sm shrink-0">
+                            <i class="fa-solid fa-search"></i>
+                            <span>查詢</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="lookupResultContainer" class="hidden pt-4 border-t border-amber-200"></div>
+        </div>
+    </div>
+
+    <!-- Admin View -->
+    <div id="adminView" class="hidden space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 luxury-card p-5 sm:p-6 rounded-3xl shadow-xl">
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-2.5 py-1 rounded bg-castle-red text-white text-[10px] font-black uppercase tracking-wider">Admin Dashboard</span>
+                    <h2 class="font-serif text-xl sm:text-2xl font-black text-castle-redDark">後台管理與折扣券數據統計</h2>
+                </div>
+                <p class="text-xs sm:text-sm text-stone-600 font-bold mt-1">即時檢視各地區抽獎明細、個別獎項中獎數量與佔比統計、審核狀態與報表匯出。</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button onclick="playClickSound(); exportDataCSV()" class="px-3.5 py-2.5 bg-amber-100 hover:bg-amber-200 text-castle-redDark font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-amber-300 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span>匯出 CSV</span>
+                </button>
+                <button onclick="playClickSound(); requestAdminAction('resetAll')" class="px-3.5 py-2.5 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-red-300 cursor-pointer">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>資料歸零</span>
+                </button>
+                <button onclick="playClickSound(); lockAdmin()" class="px-3.5 py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-amber-400 cursor-pointer shadow-sm">
+                    <i class="fa-solid fa-lock-open"></i>
+                    <span>登出後台</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- General Stats Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
+            <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-castle-redDark flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">總抽獎人數</p>
+                    <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statTotalCount">0</p>
+                </div>
+            </div>
+            <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">超級大獎數</p>
+                    <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="stat9折Count">0</p>
+                </div>
+            </div>
+            <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">現金折價券總數</p>
+                    <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statCashCount">0</p>
+                </div>
+            </div>
+            <div class="luxury-card rounded-2xl p-4 sm:p-5 flex items-center space-x-3.5 shadow-md">
+                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-lg sm:text-xl font-bold border border-amber-300 shrink-0">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] sm:text-xs font-bold text-stone-600 uppercase">已審核通過</p>
+                    <p class="text-xl sm:text-2xl font-black text-castle-redDark" id="statApprovedCount">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Individual Prize Statistics Breakdown -->
+        <div class="luxury-card rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
+            <div class="flex items-center justify-between border-b border-amber-200 pb-3">
+                <h3 class="font-serif font-bold text-base sm:text-lg text-castle-redDark flex items-center space-x-2">
+                    <i class="fa-solid fa-chart-pie text-castle-red"></i>
+                    <span>個別獎項中獎數量與佔比統計</span>
+                </h3>
+                <span class="text-xs text-stone-600 font-bold">即時同步</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="breakdownStatsGrid"></div>
+        </div>
+
+        <!-- Records Table -->
+        <div class="luxury-card rounded-3xl overflow-hidden shadow-xl">
+            <div class="p-5 sm:p-6 border-b border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/80">
+                <h3 class="font-serif font-bold text-base sm:text-lg text-castle-redDark flex items-center space-x-2">
+                    <i class="fa-solid fa-list-ul text-castle-red"></i>
+                    <span>抽獎名單與審核管理</span>
+                </h3>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-castle-red">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="adminSearchInput" onkeyup="filterAdminTable()" placeholder="搜尋姓名、電話或分店..." 
+                        class="pl-10 pr-4 py-2.5 bg-white border border-amber-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-castle-red font-bold w-full sm:w-72 shadow-sm">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[780px]">
+                    <thead>
+                        <tr class="bg-amber-50 text-castle-redDark text-xs font-black uppercase tracking-wider border-b border-amber-200">
+                            <th class="py-3.5 px-4">抽獎時間</th>
+                            <th class="py-3.5 px-4">服務分店</th>
+                            <th class="py-3.5 px-4">規劃師</th>
+                            <th class="py-3.5 px-4">客戶姓名</th>
+                            <th class="py-3.5 px-4">手機號碼</th>
+                            <th class="py-3.5 px-4">中獎票券</th>
+                            <th class="py-3.5 px-4">狀態</th>
+                            <th class="py-3.5 px-4 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody" class="divide-y divide-amber-100 text-xs sm:text-sm bg-white/70"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer class="bg-stone-900 text-amber-200/90 border-t border-amber-400/40 mt-12 py-6 text-center text-xs font-bold px-4 shadow-inner shrink-0">
+    <p>© 2026 微笑城堡窗簾 Smile Castle Curtains. 達標貴賓專屬九宮格抽獎. All Rights Reserved.</p>
+</footer>
+
+<!-- Result Modal / Coupon Ticket Screenshot Card Overlay -->
+<div id="resultModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="screenshotCard" class="bg-gradient-to-b from-white via-amber-50 to-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-amber-400 relative space-y-4 text-center transform transition-all scale-95 opacity-0">
+        <!-- Crown Top -->
+        <div class="absolute -top-7 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-castle-red to-castle-redDark text-amber-300 flex items-center justify-center shadow-lg border-2 border-amber-400">
+            <i class="fa-solid fa-crown text-xl"></i>
+        </div>
+
+        <div class="pt-3 space-y-1">
+            <span class="text-[11px] uppercase font-black tracking-widest text-castle-red">✨ 微笑城堡窗簾・滿額專屬折扣券憑證 ✨</span>
+            <h3 class="font-serif text-2xl sm:text-3xl font-black text-castle-redDark">恭喜中獎！</h3>
+        </div>
+
+        <!-- Details Box -->
+        <div class="bg-white rounded-2xl p-4 border border-amber-300 shadow-inner space-y-2.5 text-left text-xs font-bold">
+            <div class="flex justify-between items-center text-stone-700 border-b border-amber-200 pb-2">
+                <span>分店：<strong id="modalCustRegion" class="text-castle-redDark">--</strong></span>
+                <span>規劃師：<strong id="modalPlannerName" class="text-castle-redDark">--</strong></span>
+            </div>
+            <div class="flex justify-between items-center text-stone-700 pb-1">
+                <span>客戶：<strong id="modalCustName" class="text-castle-redDark">--</strong></span>
+                <span>電話：<strong id="modalCustPhone" class="text-castle-redDark font-mono">--</strong></span>
+            </div>
+            <div class="text-[11px] text-stone-500 font-mono text-center pt-0.5" id="modalTimestamp">--</div>
+            
+            <!-- Ticket Coupon Display Box -->
+            <div class="pt-3 text-center">
+                <div class="coupon-badge rounded-2xl p-4 border-2 border-dashed border-amber-500 shadow-sm space-y-1">
+                    <span class="text-[10px] bg-castle-red text-white px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-sm" id="modalBadgeLabel">微笑城堡專屬折扣券</span>
+                    <div class="text-3xl sm:text-4xl font-serif font-black text-castle-red pt-1" id="modalPrizeName">--</div>
+                    <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於現場結帳立即抵扣</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-amber-100/70 border border-amber-300 rounded-2xl p-3 text-xs text-castle-redDark flex items-center space-x-2.5 text-left font-bold shadow-sm">
+            <i class="fa-solid fa-camera text-castle-red text-lg shrink-0"></i>
+            <span><strong>自動存入相簿：</strong>點擊下方按鈕將產生截圖並自動下載，亦可直接進行手機截圖！</span>
+        </div>
+
+        <div class="flex space-x-3 pt-1">
+            <button onclick="playClickSound(); closeResultModal()" class="flex-1 py-3 px-3 bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold rounded-2xl text-xs sm:text-sm transition-all cursor-pointer">
+                關閉視窗
+            </button>
+            <button onclick="playClickSound(); captureAndSaveScreenshot()" class="flex-1 py-3 px-3 bg-gradient-to-r from-castle-red to-castle-redLight text-white font-bold rounded-2xl text-xs sm:text-sm transition-all shadow-md flex items-center justify-center space-x-1.5 border border-amber-400 cursor-pointer">
+                <i class="fa-solid fa-camera-retro"></i>
+                <span>一鍵截圖存相簿</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Password Login Modal -->
+<div id="adminLoginModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 bg-castle-redDark text-amber-300 rounded-full flex items-center justify-center mx-auto text-xl shadow-md border border-amber-400">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="font-serif font-black text-xl text-castle-redDark">後台管理員登入</h3>
+            <p class="text-xs text-stone-700 font-bold">請輸入後台審核密碼</p>
+        </div>
+        <div class="space-y-4">
+            <input type="password" id="adminPasswordInput" placeholder="請輸入密碼" 
+                class="w-full px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-castle-red text-center font-mono font-bold shadow-sm">
+            <div id="adminLoginError" class="hidden text-xs text-red-600 text-center font-bold">密碼錯誤，請重新輸入</div>
+            <div class="flex space-x-2">
+                <button onclick="playClickSound(); closeAdminModal()" class="flex-1 py-3 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-sm transition-all cursor-pointer">取消</button>
+                <button onclick="playClickSound(); verifyAdminPassword()" class="flex-1 py-3 bg-castle-red hover:bg-castle-redDark text-white font-bold rounded-xl text-sm transition-all shadow-md border border-amber-400 cursor-pointer">登入後台</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Action Password Verification Modal (For Deletion & Reset matching Admin Password wzz328) -->
+<div id="adminActionModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div class="text-center space-y-2">
+            <div class="w-14 h-14 bg-red-700 text-white rounded-full flex items-center justify-center mx-auto text-xl shadow-md border border-amber-400">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="font-serif font-black text-xl text-castle-redDark">安全確認・請輸入管理密碼</h3>
+            <p class="text-xs text-stone-700 font-bold" id="adminActionDesc">執行刪除或歸零操作需要驗證管理員密碼。</p>
+        </div>
+        <div class="space-y-4">
+            <input type="password" id="adminActionPasswordInput" placeholder="請輸入管理密碼 (wzz328)" 
+                class="w-full px-4 py-3.5 bg-white border border-amber-300 rounded-2xl text-stone-900 text-sm focus:outline-none focus:ring-2 focus:ring-castle-red text-center font-mono font-bold shadow-sm">
+            <div id="adminActionError" class="hidden text-xs text-red-600 text-center font-bold">密碼錯誤，拒絕執行</div>
+            <div class="flex space-x-2">
+                <button onclick="playClickSound(); closeAdminActionModal()" class="flex-1 py-3 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold rounded-xl text-sm transition-all cursor-pointer">取消</button>
+                <button onclick="playClickSound(); confirmAdminAction()" class="flex-1 py-3 bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl text-sm transition-all shadow-md border border-amber-400 cursor-pointer">確認執行</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Notification Modal -->
+<div id="customModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="luxury-card rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
+        <div id="customModalIcon" class="w-14 h-14 rounded-full bg-amber-100 text-castle-redDark flex items-center justify-center mx-auto text-xl border border-amber-300">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <h4 id="customModalTitle" class="font-serif font-black text-lg text-castle-redDark">提示訊息</h4>
+        <p id="customModalMessage" class="text-sm text-stone-700 leading-relaxed font-bold">--</p>
+        <button onclick="playClickSound(); closeCustomModal()" class="w-full py-3.5 bg-castle-red hover:bg-castle-redDark text-white font-bold rounded-xl text-sm transition-all shadow-md border border-amber-400 cursor-pointer">
+            我知道了
+        </button>
+    </div>
+</div>
+
+<script>
+    // Global State & Robust LocalStorage Synchronization System
+    let allRecords = [];
+    let currentVerifiedUser = null; 
+    let hasSpun = false;
+    let pendingAction = null;
+
+    // Load records from localStorage with multi-tab storage event synchronization
+    function loadRecordsFromStorage() {
+        try {
+            const data = localStorage.getItem('smile_castle_records_v3');
+            allRecords = data ? JSON.parse(data) : [];
+        } catch (e) {
+            allRecords = [];
         }
+        updateStatsAndTable();
+    }
 
-        // Initialize Data & Storage (Supports Firebase or LocalStorage Fallback for GitHub Pages)
-        async function initSystemStorage() {
-            try {
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-machine-v2';
-                const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
-
-                if (firebaseConfig && firebaseConfig.apiKey && firebaseConfig.apiKey !== "demo-key") {
-                    app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
-
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-
-                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v2');
-                    onSnapshot(recordsRef, (snapshot) => {
-                        allRecords = [];
-                        snapshot.forEach(docSnap => {
-                            allRecords.push({ id: docSnap.id, ...docSnap.data() });
-                        });
-                        updateStatsAndTable();
-                    }, (error) => {
-                        console.error("Firestore sync error:", error);
-                        loadLocalStorageFallback();
-                    });
-                } else {
-                    loadLocalStorageFallback();
-                }
-            } catch (err) {
-                console.warn("Storage fallback activated:", err);
-                loadLocalStorageFallback();
-            }
-        }
-
-        function loadLocalStorageFallback() {
-            try {
-                const localData = localStorage.getItem('smile_castle_records_v2');
-                allRecords = localData ? JSON.parse(localData) : [];
-            } catch(e) {
-                allRecords = [];
-            }
+    function saveRecordsToStorage() {
+        try {
+            localStorage.setItem('smile_castle_records_v3', JSON.stringify(allRecords));
             updateStatsAndTable();
+        } catch (e) {
+            console.error("Storage error:", e);
+        }
+    }
+
+    // Listen to storage changes for real-time admin sync across tabs/windows
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'smile_castle_records_v3') {
+            loadRecordsFromStorage();
+        }
+    });
+
+    // Web Audio Synthesizer
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    window.playClickSound = function() {
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.08);
+        } catch(e) {}
+    };
+
+    window.playGridTickSound = function() {
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        } catch(e) {}
+    };
+
+    window.playWinFanfare = function() {
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.12);
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime + idx * 0.12);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.12 + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(audioCtx.currentTime + idx * 0.12);
+                osc.stop(audioCtx.currentTime + idx * 0.12 + 0.3);
+            });
+        } catch(e) {}
+    };
+
+    window.speakWinMessage = function(prizeName) {
+        try {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(`恭喜中獎！抽中 ${prizeName}！`);
+                utterance.lang = 'zh-TW';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.05;
+                window.speechSynthesis.speak(utterance);
+            }
+        } catch(e) {}
+    };
+
+    // 9-Grid Cells Configuration (Cell 6 = 頭獎 1000元 at Bottom-Left Corner)
+    const gridCells = [
+        { index: 0, name: '9折', type: 'discount' },
+        { index: 1, name: '500元', type: 'cash' },
+        { index: 2, name: '800元', type: 'cash' },
+        { index: 3, name: '600元', type: 'cash' },
+        { index: 4, name: '600元', type: 'cash' },
+        { index: 5, name: '800元', type: 'cash' },
+        { index: 6, name: '1000元', type: 'cash' }, // Bottom-Left Corner 頭獎
+        { index: 7, name: '500元', type: 'cash' }
+    ];
+
+    // Optimized Winning Probabilities (5% 9折, 40% 1000元, 35% 800元, 12% 600元, 8% 500元)
+    function getRandomWinningPrize() {
+        const rand = Math.random() * 100;
+        let targetIndex = 6;
+        if (rand < 5) {
+            targetIndex = 0;
+        } else if (rand < 45) {
+            targetIndex = 6;
+        } else if (rand < 80) {
+            targetIndex = Math.random() < 0.5 ? 2 : 5;
+        } else if (rand < 92) {
+            targetIndex = Math.random() < 0.5 ? 3 : 4;
+        } else {
+            targetIndex = Math.random() < 0.5 ? 1 : 7;
+        }
+        return gridCells[targetIndex];
+    }
+
+    window.switchView = function(viewName) {
+        document.getElementById('frontendView').classList.add('hidden');
+        document.getElementById('lookupView').classList.add('hidden');
+        document.getElementById('adminView').classList.add('hidden');
+
+        document.getElementById('navFrontendBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-50 text-castle-redDark hover:bg-amber-100 flex items-center space-x-1.5 border border-amber-300 cursor-pointer";
+        document.getElementById('navLookupBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-50 text-castle-redDark hover:bg-amber-100 flex items-center space-x-1.5 border border-amber-300 cursor-pointer";
+
+        if (viewName === 'frontend') {
+            document.getElementById('frontendView').classList.remove('hidden');
+            document.getElementById('navFrontendBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer";
+        } else if (viewName === 'lookup') {
+            document.getElementById('lookupView').classList.remove('hidden');
+            document.getElementById('navLookupBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer";
+        } else if (viewName === 'admin') {
+            document.getElementById('adminView').classList.remove('hidden');
+            loadRecordsFromStorage();
+        }
+    };
+
+    window.handleRegistration = function(e) {
+        e.preventDefault();
+        const region = document.getElementById('custRegion').value;
+        const plannerName = document.getElementById('plannerName').value.trim();
+        const name = document.getElementById('custName').value.trim();
+        const phone = document.getElementById('custPhone').value.trim();
+        const feedbackEl = document.getElementById('formFeedback');
+
+        if (!region || !plannerName || !name || !phone) {
+            showCustomModal("請完整填寫服務分店、規劃師姓名、客戶姓名與10位手機號碼", "欄位未填寫", "warning");
+            return;
         }
 
-        async function saveRecordToStorage(recordData) {
-            try {
-                if (db) {
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-machine-v2';
-                    const recordsRef = collection(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v2');
-                    await setDoc(doc(recordsRef, recordData.phone), recordData);
-                } else {
-                    // Update in-memory & LocalStorage
+        const existing = allRecords.find(r => r.phone === phone);
+        if (existing) {
+            feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-red-100 text-red-900 border border-red-300 flex items-start space-x-2 shadow-sm";
+            feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-700 text-lg mt-0.5 shrink-0"></i><div><strong>已抽獎，不可重複抽獎！</strong><br><span class="text-[11px] font-normal text-red-800">分店：${existing.region} | 規劃師：${existing.plannerName || '--'} | 時間：${existing.timestamp} | 獎項：<strong>${existing.prizeName}</strong></span></div>`;
+            feedbackEl.classList.remove('hidden');
+            return;
+        }
+
+        currentVerifiedUser = { region, plannerName, name, phone };
+        feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center space-x-2 shadow-sm";
+        feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-700 text-lg shrink-0"></i><span>驗證成功！規劃師 ${plannerName} 服務之 ${name} 貴賓可開始抽獎。</span>`;
+        feedbackEl.classList.remove('hidden');
+
+        document.getElementById('sessionCustomerDisplay').innerText = `[${region}] 規:${plannerName} / 客:${name} (${phone})`;
+        document.getElementById('activeSessionBox').classList.remove('hidden');
+
+        const spinBtn = document.getElementById('spinActionBtn');
+        spinBtn.disabled = false;
+        spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        document.getElementById('slotStatusBadge').innerText = `✨ 已解鎖：${name}`;
+        document.getElementById('slotStatusBadge').className = "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
+    };
+
+    window.resetSession = function() {
+        currentVerifiedUser = null;
+        hasSpun = false;
+        document.getElementById('customerForm').reset();
+        document.getElementById('formFeedback').classList.add('hidden');
+        document.getElementById('activeSessionBox').classList.add('hidden');
+        const spinBtn = document.getElementById('spinActionBtn');
+        spinBtn.disabled = true;
+        spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        document.getElementById('slotStatusBadge').innerText = "🔒 請先登記驗證";
+        document.getElementById('slotStatusBadge').className = "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300";
+    };
+
+    window.startGridSpin = function() {
+        if (!currentVerifiedUser) {
+            showCustomModal("請先完成身份與分店登記驗證！", "尚未驗證", "warning");
+            return;
+        }
+        if (hasSpun) {
+            showCustomModal("已抽獎，不可重複抽獎！", "已抽過獎", "warning");
+            return;
+        }
+
+        hasSpun = true;
+        document.getElementById('spinActionBtn').disabled = true;
+
+        const winningPrize = getRandomWinningPrize();
+        const winningIndex = winningPrize.index;
+
+        let currentStep = 0;
+        const totalSteps = 24 + winningIndex;
+        let speed = 60;
+
+        function runStep() {
+            for (let i = 0; i < 8; i++) {
+                const el = document.getElementById(`cell-${i}`);
+                if (el) el.classList.remove('active');
+            }
+
+            const activeCellIdx = currentStep % 8;
+            const activeEl = document.getElementById(`cell-${activeCellIdx}`);
+            if (activeEl) activeEl.classList.add('active');
+
+            playGridTickSound();
+            currentStep++;
+
+            if (currentStep <= totalSteps) {
+                if (currentStep > totalSteps - 6) {
+                    speed += 35;
+                }
+                setTimeout(runStep, speed);
+            } else {
+                setTimeout(() => {
+                    const recordData = {
+                        region: currentVerifiedUser.region,
+                        plannerName: currentVerifiedUser.plannerName,
+                        name: currentVerifiedUser.name,
+                        phone: currentVerifiedUser.phone,
+                        prizeId: winningPrize.name,
+                        prizeName: winningPrize.name,
+                        prizeType: winningPrize.type,
+                        timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
+                        status: '已通過審核'
+                    };
+
+                    // Save to localStorage immediately and trigger storage update
                     const existingIdx = allRecords.findIndex(r => r.phone === recordData.phone);
                     if (existingIdx >= 0) {
                         allRecords[existingIdx] = recordData;
                     } else {
                         allRecords.push(recordData);
                     }
-                    localStorage.setItem('smile_castle_records_v2', JSON.stringify(allRecords));
-                    updateStatsAndTable();
-                }
-            } catch (err) {
-                console.error("Save error, using local storage:", err);
-                const existingIdx = allRecords.findIndex(r => r.phone === recordData.phone);
-                if (existingIdx >= 0) {
-                    allRecords[existingIdx] = recordData;
-                } else {
-                    allRecords.push(recordData);
-                }
-                localStorage.setItem('smile_castle_records_v2', JSON.stringify(allRecords));
-                updateStatsAndTable();
+                    saveRecordsToStorage();
+
+                    playWinFanfare();
+                    speakWinMessage(winningPrize.name);
+
+                    confetti({
+                        particleCount: 160,
+                        spread: 110,
+                        origin: { y: 0.6 },
+                        colors: ['#f59e0b', '#b92b33', '#ffffff', '#fbbf24']
+                    });
+
+                    showResultModal(currentVerifiedUser.region, currentVerifiedUser.plannerName, currentVerifiedUser.name, currentVerifiedUser.phone, winningPrize.name, recordData.timestamp);
+                }, 300);
             }
         }
 
-        async function deleteRecordFromStorage(phone) {
-            try {
-                if (db) {
-                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-machine-v2';
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v2', phone);
-                    await deleteDoc(docRef);
-                } else {
-                    allRecords = allRecords.filter(r => r.phone !== phone);
-                    localStorage.setItem('smile_castle_records_v2', JSON.stringify(allRecords));
-                    updateStatsAndTable();
-                }
-            } catch (err) {
-                allRecords = allRecords.filter(r => r.phone !== phone);
-                localStorage.setItem('smile_castle_records_v2', JSON.stringify(allRecords));
-                updateStatsAndTable();
-            }
+        runStep();
+    };
+
+    function showResultModal(region, plannerName, name, phone, prizeName, timeStr) {
+        document.getElementById('modalCustRegion').innerText = region;
+        document.getElementById('modalPlannerName').innerText = plannerName;
+        document.getElementById('modalCustName').innerText = name;
+        document.getElementById('modalCustPhone').innerText = phone;
+        document.getElementById('modalPrizeName').innerText = prizeName;
+        document.getElementById('modalTimestamp').innerText = `時間：${timeStr}`;
+
+        const badgeLabel = document.getElementById('modalBadgeLabel');
+        if (prizeName === '9折') {
+            badgeLabel.innerText = "✨ 超級大獎 ✨";
+        } else if (prizeName === '1000元') {
+            badgeLabel.innerText = "✨ 頭獎 ✨";
+        } else {
+            badgeLabel.innerText = "微笑城堡專屬折扣券";
         }
 
-        window.switchView = function(viewName) {
-            document.getElementById('frontendView').classList.add('hidden');
-            document.getElementById('lookupView').classList.add('hidden');
-            document.getElementById('adminView').classList.add('hidden');
+        const modal = document.getElementById('resultModal');
+        const card = document.getElementById('screenshotCard');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            card.classList.remove('scale-95', 'opacity-0');
+            card.classList.add('scale-100', 'opacity-100');
+        }, 50);
+    }
 
-            document.getElementById('navFrontendBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-50 text-castle-redDark hover:bg-amber-100 flex items-center space-x-1.5 border border-amber-300 cursor-pointer";
-            document.getElementById('navLookupBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-50 text-castle-redDark hover:bg-amber-100 flex items-center space-x-1.5 border border-amber-300 cursor-pointer";
+    window.closeResultModal = function() {
+        const modal = document.getElementById('resultModal');
+        const card = document.getElementById('screenshotCard');
+        card.classList.remove('scale-100', 'opacity-100');
+        card.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            window.resetSession();
+        }, 200);
+    };
 
-            if (viewName === 'frontend') {
-                document.getElementById('frontendView').classList.remove('hidden');
-                document.getElementById('navFrontendBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer";
-            } else if (viewName === 'lookup') {
-                document.getElementById('lookupView').classList.remove('hidden');
-                document.getElementById('navLookupBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer";
-            } else if (viewName === 'admin') {
-                document.getElementById('adminView').classList.remove('hidden');
-            }
-        };
+    window.captureAndSaveScreenshot = function() {
+        const card = document.getElementById('screenshotCard');
+        html2canvas(card, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+        }).then(canvas => {
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = url;
+                downloadLink.download = `微笑城堡窗簾中獎折扣券_${currentVerifiedUser ? currentVerifiedUser.phone : 'coupon'}.png`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-        window.handleRegistration = function(e) {
-            e.preventDefault();
-            const region = document.getElementById('custRegion').value;
-            const plannerName = document.getElementById('plannerName').value.trim();
-            const name = document.getElementById('custName').value.trim();
-            const phone = document.getElementById('custPhone').value.trim();
-            const feedbackEl = document.getElementById('formFeedback');
+                showCustomModal("截圖檔案已產生並下載！手機版若未自動存入相簿，請直接進行手動截圖。", "截圖成功", "success");
+            }, 'image/png');
+        }).catch(err => {
+            console.error("Screenshot error:", err);
+            showCustomModal("截圖儲存失敗，請手動截圖留存畫面。", "提示", "warning");
+        });
+    };
 
-            if (!region || !plannerName || !name || !phone) {
-                showCustomModal("請完整填寫服務分店、規劃師姓名、客戶姓名與10位手機號碼", "欄位未填寫", "warning");
-                return;
-            }
+    window.performLookup = function() {
+        loadRecordsFromStorage();
+        const phone = document.getElementById('lookupPhoneInput').value.trim();
+        const container = document.getElementById('lookupResultContainer');
 
-            const existing = allRecords.find(r => r.phone === phone);
-            if (existing) {
-                feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-red-100 text-red-900 border border-red-300 flex items-start space-x-2 shadow-sm";
-                feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-700 text-lg mt-0.5 shrink-0"></i><div><strong>已抽獎，不可重複抽獎！</strong><br><span class="text-[11px] font-normal text-red-800">分店：${existing.region} | 規劃師：${existing.plannerName || '--'} | 時間：${existing.timestamp} | 獎項：<strong>${existing.prizeName}</strong></span></div>`;
-                feedbackEl.classList.remove('hidden');
-                return;
-            }
-
-            currentVerifiedUser = { region, plannerName, name, phone };
-            feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center space-x-2 shadow-sm";
-            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-700 text-lg shrink-0"></i><span>驗證成功！規劃師 ${plannerName} 服務之 ${name} 貴賓可開始抽獎。</span>`;
-            feedbackEl.classList.remove('hidden');
-
-            document.getElementById('sessionCustomerDisplay').innerText = `[${region}] 規:${plannerName} / 客:${name} (${phone})`;
-            document.getElementById('activeSessionBox').classList.remove('hidden');
-
-            const spinBtn = document.getElementById('spinActionBtn');
-            spinBtn.disabled = false;
-            spinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            document.getElementById('slotStatusBadge').innerText = `✨ 已解鎖：${name}`;
-            document.getElementById('slotStatusBadge').className = "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300";
-        };
-
-        window.resetSession = function() {
-            currentVerifiedUser = null;
-            hasSpun = false;
-            document.getElementById('customerForm').reset();
-            document.getElementById('formFeedback').classList.add('hidden');
-            document.getElementById('activeSessionBox').classList.add('hidden');
-            const spinBtn = document.getElementById('spinActionBtn');
-            spinBtn.disabled = true;
-            spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            document.getElementById('slotStatusBadge').innerText = "🔒 請先登記驗證";
-            document.getElementById('slotStatusBadge').className = "px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300";
-        };
-
-        window.startGridSpin = function() {
-            if (!currentVerifiedUser) {
-                showCustomModal("請先完成身份與分店登記驗證！", "尚未驗證", "warning");
-                return;
-            }
-            if (hasSpun) {
-                showCustomModal("已抽獎，不可重複抽獎！", "已抽過獎", "warning");
-                return;
-            }
-
-            hasSpun = true;
-            document.getElementById('spinActionBtn').disabled = true;
-
-            const winningPrize = getRandomWinningPrize();
-            const winningIndex = winningPrize.index;
-
-            let currentStep = 0;
-            const totalSteps = 24 + winningIndex;
-            let speed = 60;
-
-            function runStep() {
-                for (let i = 0; i < 8; i++) {
-                    const el = document.getElementById(`cell-${i}`);
-                    if (el) el.classList.remove('active');
-                }
-
-                const activeCellIdx = currentStep % 8;
-                const activeEl = document.getElementById(`cell-${activeCellIdx}`);
-                if (activeEl) activeEl.classList.add('active');
-
-                playGridTickSound();
-                currentStep++;
-
-                if (currentStep <= totalSteps) {
-                    if (currentStep > totalSteps - 6) {
-                        speed += 35;
-                    }
-                    setTimeout(runStep, speed);
-                } else {
-                    setTimeout(async () => {
-                        const recordData = {
-                            region: currentVerifiedUser.region,
-                            plannerName: currentVerifiedUser.plannerName,
-                            name: currentVerifiedUser.name,
-                            phone: currentVerifiedUser.phone,
-                            prizeId: winningPrize.name,
-                            prizeName: winningPrize.name,
-                            prizeType: winningPrize.type,
-                            timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
-                            status: '已通過審核'
-                        };
-
-                        await saveRecordToStorage(recordData);
-
-                        playWinFanfare();
-                        speakWinMessage(winningPrize.name);
-
-                        confetti({
-                            particleCount: 160,
-                            spread: 110,
-                            origin: { y: 0.6 },
-                            colors: ['#f59e0b', '#b92b33', '#ffffff', '#fbbf24']
-                        });
-
-                        showResultModal(currentVerifiedUser.region, currentVerifiedUser.plannerName, currentVerifiedUser.name, currentVerifiedUser.phone, winningPrize.name, recordData.timestamp);
-                    }, 300);
-                }
-            }
-
-            runStep();
-        };
-
-        function showResultModal(region, plannerName, name, phone, prizeName, timeStr) {
-            document.getElementById('modalCustRegion').innerText = region;
-            document.getElementById('modalPlannerName').innerText = plannerName;
-            document.getElementById('modalCustName').innerText = name;
-            document.getElementById('modalCustPhone').innerText = phone;
-            document.getElementById('modalPrizeName').innerText = prizeName;
-            document.getElementById('modalTimestamp').innerText = `時間：${timeStr}`;
-
-            const badgeLabel = document.getElementById('modalBadgeLabel');
-            if (prizeName === '9折') {
-                badgeLabel.innerText = "✨ 超級大獎 ✨";
-            } else if (prizeName === '1000元') {
-                badgeLabel.innerText = "✨ 頭獎 ✨";
-            } else {
-                badgeLabel.innerText = "微笑城堡專屬折扣券";
-            }
-
-            const modal = document.getElementById('resultModal');
-            const card = document.getElementById('screenshotCard');
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                card.classList.remove('scale-95', 'opacity-0');
-                card.classList.add('scale-100', 'opacity-100');
-            }, 50);
+        if (!phone) {
+            showCustomModal("請輸入要查詢的手機號碼", "提示", "warning");
+            return;
         }
 
-        window.closeResultModal = function() {
-            const modal = document.getElementById('resultModal');
-            const card = document.getElementById('screenshotCard');
-            card.classList.remove('scale-100', 'opacity-100');
-            card.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                window.resetSession();
-            }, 200);
-        };
+        const found = allRecords.find(r => r.phone === phone);
+        container.classList.remove('hidden');
 
-        window.captureAndSaveScreenshot = function() {
-            const card = document.getElementById('screenshotCard');
-            html2canvas(card, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                canvas.toBlob(blob => {
-                    const url = URL.createObjectURL(blob);
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = url;
-                    downloadLink.download = `微笑城堡窗簾中獎折扣券_${currentVerifiedUser ? currentVerifiedUser.phone : 'coupon'}.png`;
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                    setTimeout(() => URL.revokeObjectURL(url), 1000);
+        if (found) {
+            let badgeText = '微笑城堡專屬折扣券';
+            if (found.prizeName === '9折') badgeText = '✨ 超級大獎 ✨';
+            else if (found.prizeName === '1000元') badgeText = '✨ 頭獎 ✨';
 
-                    showCustomModal("截圖檔案已產生並下載！手機版若未自動存入相簿，請直接進行手動截圖。", "截圖成功", "success");
-                }, 'image/png');
-            }).catch(err => {
-                console.error("Screenshot error:", err);
-                showCustomModal("截圖儲存失敗，請手動截圖留存畫面。", "提示", "warning");
-            });
-        };
-
-        window.performLookup = function() {
-            const phone = document.getElementById('lookupPhoneInput').value.trim();
-            const container = document.getElementById('lookupResultContainer');
-
-            if (!phone) {
-                showCustomModal("請輸入要查詢的手機號碼", "提示", "warning");
-                return;
-            }
-
-            const found = allRecords.find(r => r.phone === phone);
-            container.classList.remove('hidden');
-
-            if (found) {
-                let badgeText = '微笑城堡專屬折扣券';
-                if (found.prizeName === '9折') badgeText = '✨ 超級大獎 ✨';
-                else if (found.prizeName === '1000元') badgeText = '✨ 頭獎 ✨';
-
-                container.innerHTML = `
-                    <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 sm:p-5 space-y-3 shadow-md text-xs sm:text-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-castle-redDark uppercase tracking-wider flex items-center space-x-1.5">
-                                <i class="fa-solid fa-circle-check text-emerald-700"></i>
-                                <span>查詢成功・找到中獎優惠券紀錄</span>
-                            </span>
-                            <span class="text-stone-600 font-mono text-[11px]">${found.timestamp}</span>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-amber-200 font-bold">
-                            <div><span class="text-stone-500 text-[10px] block">分店</span><strong class="text-castle-redDark">${found.region || '未指定'}</strong></div>
-                            <div><span class="text-stone-500 text-[10px] block">規劃師</span><strong class="text-castle-redDark">${found.plannerName || '--'}</strong></div>
-                            <div><span class="text-stone-500 text-[10px] block">客戶</span><strong class="text-castle-redDark">${found.name}</strong></div>
-                            <div><span class="text-stone-500 text-[10px] block">電話</span><strong class="text-castle-redDark font-mono">${found.phone}</strong></div>
-                        </div>
-                        <div class="pt-2 text-center">
-                            <div class="coupon-badge rounded-2xl p-4 border-2 border-dashed border-amber-500 shadow-sm space-y-1 inline-block w-full max-w-xs">
-                                <span class="text-[10px] bg-castle-red text-white px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-sm">${badgeText}</span>
-                                <div class="text-3xl font-serif font-black text-castle-red pt-1">${found.prizeName}</div>
-                                <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於下訂時立即抵扣</p>
-                            </div>
-                        </div>
-                        <div class="text-xs text-stone-700 pt-1 flex items-center justify-between font-bold">
-                            <span>審核狀態：<span class="text-emerald-700">${found.status || '已通過審核'}</span></span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center space-y-2 shadow-sm">
-                        <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
-                        <h4 class="font-bold text-red-900 text-base">查無此手機號碼紀錄</h4>
-                        <p class="text-xs text-red-700 font-bold">系統中沒有找到手機號碼 <strong>${phone}</strong> 的抽獎紀錄。</p>
-                    </div>
-                `;
-            }
-        };
-
-        let isAdminLoggedIn = false;
-        window.handleAdminAccess = function() {
-            if (isAdminLoggedIn) {
-                switchView('admin');
-            } else {
-                document.getElementById('adminLoginModal').classList.remove('hidden');
-            }
-        };
-
-        window.closeAdminModal = function() {
-            document.getElementById('adminLoginModal').classList.add('hidden');
-            document.getElementById('adminPasswordInput').value = '';
-            document.getElementById('adminLoginError').classList.add('hidden');
-        };
-
-        window.verifyAdminPassword = function() {
-            const pwd = document.getElementById('adminPasswordInput').value;
-            if (pwd === 'wzz328') {
-                isAdminLoggedIn = true;
-                closeAdminModal();
-                document.getElementById('navAdminBtn').innerHTML = `<i class="fa-solid fa-unlock text-amber-300"></i><span class="hidden xs:inline">後台管理</span>`;
-                switchView('admin');
-            } else {
-                document.getElementById('adminLoginError').classList.remove('hidden');
-            }
-        };
-
-        window.lockAdmin = function() {
-            isAdminLoggedIn = false;
-            document.getElementById('navAdminBtn').innerHTML = `<i class="fa-solid fa-lock" id="adminLockIcon"></i><span class="hidden xs:inline">後台管理</span>`;
-            switchView('frontend');
-            showCustomModal("已安全登出後台系統", "提示", "success");
-        };
-
-        window.requestAdminAction = function(type, phone = null) {
-            pendingAction = { type, phone };
-            document.getElementById('adminActionPasswordInput').value = '';
-            document.getElementById('adminActionError').classList.add('hidden');
-            const descEl = document.getElementById('adminActionDesc');
-            if (type === 'resetAll') {
-                descEl.innerText = "⚠️ 警告：您即將將「所有抽獎紀錄全部歸零」，此操作無法復原！請輸入管理員密碼 (wzz328) 以確認：";
-            } else if (type === 'delete') {
-                descEl.innerText = `確定要刪除手機號碼為 ${phone} 的抽獎紀錄嗎？請輸入管理員密碼以確認：`;
-            }
-            document.getElementById('adminActionModal').classList.remove('hidden');
-        };
-
-        window.closeAdminActionModal = function() {
-            document.getElementById('adminActionModal').classList.add('hidden');
-            pendingAction = null;
-        };
-
-        window.confirmAdminAction = async function() {
-            const pwd = document.getElementById('adminActionPasswordInput').value;
-            if (pwd !== 'wzz328') {
-                document.getElementById('adminActionError').classList.remove('hidden');
-                return;
-            }
-
-            const action = pendingAction;
-            closeAdminActionModal();
-
-            if (!action) return;
-
-            if (action.type === 'resetAll') {
-                try {
-                    for (const r of allRecords) {
-                        if (db) {
-                            const appId = typeof __app_id !== 'undefined' ? __app_id : 'smile-castle-grid-machine-v2';
-                            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'castle_draw_records_v2', r.phone);
-                            await deleteDoc(docRef);
-                        }
-                    }
-                    allRecords = [];
-                    localStorage.removeItem('smile_castle_records_v2');
-                    updateStatsAndTable();
-                    showCustomModal("所有抽獎紀錄已重新歸零！", "歸零完成", "success");
-                } catch (err) {
-                    allRecords = [];
-                    localStorage.removeItem('smile_castle_records_v2');
-                    updateStatsAndTable();
-                    showCustomModal("所有抽獎紀錄已重新歸零！", "歸零完成", "success");
-                }
-            } else if (action.type === 'delete' && action.phone) {
-                await deleteRecordFromStorage(action.phone);
-                showCustomModal("已成功刪除該筆抽獎紀錄", "刪除成功", "success");
-            }
-        };
-
-        function updateStatsAndTable() {
-            const total = allRecords.length;
-            const count9zhes = allRecords.filter(r => r.prizeName === '9折').length;
-            const countCash = allRecords.filter(r => r.prizeType === 'cash').length;
-            const countApproved = allRecords.filter(r => r.status === '已通過審核' || !r.status).length;
-
-            document.getElementById('statTotalCount').innerText = total;
-            document.getElementById('stat9折Count').innerText = count9zhes;
-            document.getElementById('statCashCount').innerText = countCash;
-            document.getElementById('statApprovedCount').innerText = countApproved;
-
-            const prizeCounts = {
-                '9折': allRecords.filter(r => r.prizeName === '9折').length,
-                '1000元': allRecords.filter(r => r.prizeName === '1000元').length,
-                '800元': allRecords.filter(r => r.prizeName === '800元').length,
-                '600元': allRecords.filter(r => r.prizeName === '600元').length,
-                '500元': allRecords.filter(r => r.prizeName === '500元').length,
-            };
-
-            const breakdownGrid = document.getElementById('breakdownStatsGrid');
-            breakdownGrid.innerHTML = Object.entries(prizeCounts).map(([name, count]) => {
-                const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
-                return `
-                    <div class="bg-amber-50/80 rounded-2xl p-3.5 sm:p-4 border border-amber-300 text-center space-y-1.5 shadow-sm">
-                        <span class="text-xs font-bold text-castle-redDark block truncate">${name}</span>
-                        <div class="text-xl sm:text-2xl font-black text-castle-redDark font-serif">${count} <span class="text-xs font-sans text-stone-600 font-bold">位</span></div>
-                        <div class="text-[10px] text-stone-700 font-bold bg-white px-2.5 py-0.5 rounded-full inline-block border border-amber-300">佔比 ${percentage}%</div>
-                    </div>
-                `;
-            }).join('');
-
-            const tbody = document.getElementById('adminTableBody');
-            if (allRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-stone-500 font-bold text-sm">目前尚無任何抽獎紀錄</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = allRecords.map((r, idx) => `
-                <tr class="hover:bg-amber-50/50 transition-all">
-                    <td class="py-3.5 px-4 text-xs font-mono text-stone-600 font-bold">${r.timestamp || '--'}</td>
-                    <td class="py-3.5 px-4 font-bold text-stone-800 text-xs"><span class="px-2 py-1 rounded bg-amber-100 text-castle-redDark border border-amber-300">${r.region || '未指定'}</span></td>
-                    <td class="py-3.5 px-4 font-bold text-stone-900">${r.plannerName || '--'}</td>
-                    <td class="py-3.5 px-4 font-bold text-stone-900">${r.name}</td>
-                    <td class="py-3.5 px-4 font-mono text-stone-700 font-bold">${r.phone}</td>
-                    <td class="py-3.5 px-4 font-serif font-black text-castle-red text-base">${r.prizeName}</td>
-                    <td class="py-3.5 px-4">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-black ${r.status === '已作廢' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
-                            ${r.status || '已通過審核'}
+            container.innerHTML = `
+                <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 sm:p-5 space-y-3 shadow-md text-xs sm:text-sm">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-castle-redDark uppercase tracking-wider flex items-center space-x-1.5">
+                            <i class="fa-solid fa-circle-check text-emerald-700"></i>
+                            <span>查詢成功・找到中獎優惠券紀錄</span>
                         </span>
-                    </td>
-                    <td class="py-3.5 px-4 text-center space-x-1.5 whitespace-nowrap">
-                        <button onclick="playClickSound(); toggleRecordStatus('${r.phone}')" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-castle-redDark rounded-lg text-xs font-bold transition-all border border-amber-300 cursor-pointer shadow-sm" title="切換審核狀態">
-                            狀態
-                        </button>
-                        <button onclick="playClickSound(); requestAdminAction('delete', '${r.phone}')" class="px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition-all border border-red-300 cursor-pointer shadow-sm" title="刪除紀錄">
-                            刪除
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+                        <span class="text-stone-600 font-mono text-[11px]">${found.timestamp}</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-amber-200 font-bold">
+                        <div><span class="text-stone-500 text-[10px] block">分店</span><strong class="text-castle-redDark">${found.region || '未指定'}</strong></div>
+                        <div><span class="text-stone-500 text-[10px] block">規劃師</span><strong class="text-castle-redDark">${found.plannerName || '--'}</strong></div>
+                        <div><span class="text-stone-500 text-[10px] block">客戶</span><strong class="text-castle-redDark">${found.name}</strong></div>
+                        <div><span class="text-stone-500 text-[10px] block">電話</span><strong class="text-castle-redDark font-mono">${found.phone}</strong></div>
+                    </div>
+                    <div class="pt-2 text-center">
+                        <div class="coupon-badge rounded-2xl p-4 border-2 border-dashed border-amber-500 shadow-sm space-y-1 inline-block w-full max-w-xs">
+                            <span class="text-[10px] bg-castle-red text-white px-3 py-0.5 rounded-full font-black tracking-widest uppercase shadow-sm">${badgeText}</span>
+                            <div class="text-3xl font-serif font-black text-castle-red pt-1">${found.prizeName}</div>
+                            <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於下訂時立即抵扣</p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-stone-700 pt-1 flex items-center justify-between font-bold">
+                        <span>審核狀態：<span class="text-emerald-700">${found.status || '已通過審核'}</span></span>
+                    </div>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center space-y-2 shadow-sm">
+                    <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
+                    <h4 class="font-bold text-red-900 text-base">查無此手機號碼紀錄</h4>
+                    <p class="text-xs text-red-700 font-bold">系統中沒有找到手機號碼 <strong>${phone}</strong> 的抽獎紀錄。</p>
+                </div>
+            `;
+        }
+    };
+
+    let isAdminLoggedIn = false;
+    window.handleAdminAccess = function() {
+        if (isAdminLoggedIn) {
+            loadRecordsFromStorage();
+            switchView('admin');
+        } else {
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+        }
+    };
+
+    window.closeAdminModal = function() {
+        document.getElementById('adminLoginModal').classList.add('hidden');
+        document.getElementById('adminPasswordInput').value = '';
+        document.getElementById('adminLoginError').classList.add('hidden');
+    };
+
+    window.verifyAdminPassword = function() {
+        const pwd = document.getElementById('adminPasswordInput').value;
+        if (pwd === 'wzz328') {
+            isAdminLoggedIn = true;
+            closeAdminModal();
+            document.getElementById('navAdminBtn').innerHTML = `<i class="fa-solid fa-unlock text-amber-300"></i><span class="hidden xs:inline">後台管理</span>`;
+            loadRecordsFromStorage();
+            switchView('admin');
+        } else {
+            document.getElementById('adminLoginError').classList.remove('hidden');
+        }
+    };
+
+    window.lockAdmin = function() {
+        isAdminLoggedIn = false;
+        document.getElementById('navAdminBtn').innerHTML = `<i class="fa-solid fa-lock" id="adminLockIcon"></i><span class="hidden xs:inline">後台管理</span>`;
+        switchView('frontend');
+        showCustomModal("已安全登出後台系統", "提示", "success");
+    };
+
+    window.requestAdminAction = function(type, phone = null) {
+        pendingAction = { type, phone };
+        document.getElementById('adminActionPasswordInput').value = '';
+        document.getElementById('adminActionError').classList.add('hidden');
+        const descEl = document.getElementById('adminActionDesc');
+        if (type === 'resetAll') {
+            descEl.innerText = "⚠️ 警告：您即將將「所有抽獎紀錄全部歸零」，此操作無法復原！請輸入管理員密碼 (wzz328) 以確認：";
+        } else if (type === 'delete') {
+            descEl.innerText = `確定要刪除手機號碼為 ${phone} 的抽獎紀錄嗎？請輸入管理員密碼以確認：`;
+        }
+        document.getElementById('adminActionModal').classList.remove('hidden');
+    };
+
+    window.closeAdminActionModal = function() {
+        document.getElementById('adminActionModal').classList.add('hidden');
+        pendingAction = null;
+    };
+
+    window.confirmAdminAction = function() {
+        const pwd = document.getElementById('adminActionPasswordInput').value;
+        if (pwd !== 'wzz328') {
+            document.getElementById('adminActionError').classList.remove('hidden');
+            return;
         }
 
-        window.toggleRecordStatus = async function(phone) {
-            const record = allRecords.find(r => r.phone === phone);
-            if (!record) return;
-            const newStatus = record.status === '已作廢' ? '已通過審核' : '已作廢';
-            record.status = newStatus;
-            await saveRecordToStorage(record);
+        const action = pendingAction;
+        closeAdminActionModal();
+
+        if (!action) return;
+
+        if (action.type === 'resetAll') {
+            allRecords = [];
+            localStorage.removeItem('smile_castle_records_v3');
+            updateStatsAndTable();
+            showCustomModal("所有抽獎紀錄已重新歸零！", "歸零完成", "success");
+        } else if (action.type === 'delete' && action.phone) {
+            allRecords = allRecords.filter(r => r.phone !== action.phone);
+            saveRecordsToStorage();
+            showCustomModal("已成功刪除該筆抽獎紀錄", "刪除成功", "success");
+        }
+    };
+
+    function updateStatsAndTable() {
+        const total = allRecords.length;
+        const count9zhes = allRecords.filter(r => r.prizeName === '9折').length;
+        const countCash = allRecords.filter(r => r.prizeType === 'cash').length;
+        const countApproved = allRecords.filter(r => r.status === '已通過審核' || !r.status).length;
+
+        document.getElementById('statTotalCount').innerText = total;
+        document.getElementById('stat9折Count').innerText = count9zhes;
+        document.getElementById('statCashCount').innerText = countCash;
+        document.getElementById('statApprovedCount').innerText = countApproved;
+
+        const prizeCounts = {
+            '9折': allRecords.filter(r => r.prizeName === '9折').length,
+            '1000元': allRecords.filter(r => r.prizeName === '1000元').length,
+            '800元': allRecords.filter(r => r.prizeName === '800元').length,
+            '600元': allRecords.filter(r => r.prizeName === '600元').length,
+            '500元': allRecords.filter(r => r.prizeName === '500元').length,
         };
 
-        window.filterAdminTable = function() {
-            const query = document.getElementById('adminSearchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#adminTableBody tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        };
+        const breakdownGrid = document.getElementById('breakdownStatsGrid');
+        breakdownGrid.innerHTML = Object.entries(prizeCounts).map(([name, count]) => {
+            const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+            return `
+                <div class="bg-amber-50/80 rounded-2xl p-3.5 sm:p-4 border border-amber-300 text-center space-y-1.5 shadow-sm">
+                    <span class="text-xs font-bold text-castle-redDark block truncate">${name}</span>
+                    <div class="text-xl sm:text-2xl font-black text-castle-redDark font-serif">${count} <span class="text-xs font-sans text-stone-600 font-bold">位</span></div>
+                    <div class="text-[10px] text-stone-700 font-bold bg-white px-2.5 py-0.5 rounded-full inline-block border border-amber-300">佔比 ${percentage}%</div>
+                </div>
+            `;
+        }).join('');
 
-        window.exportDataCSV = function() {
-            let csv = '\uFEFF抽獎時間,服務分店,規劃師姓名,客戶姓名,手機號碼,中獎票券,審核狀態\n';
-            allRecords.forEach(r => {
-                csv += `"${r.timestamp}","${r.region || '未指定'}","${r.plannerName || '--'}","${r.name}","${r.phone}","${r.prizeName}","${r.status || '已通過審核'}"\n`;
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `微笑城堡窗簾九宮格報表_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
-        };
-
-        function showCustomModal(message, title = "提示訊息", type = "info") {
-            document.getElementById('customModalTitle').innerText = title;
-            document.getElementById('customModalMessage').innerText = message;
-            const iconEl = document.getElementById('customModalIcon');
-            if (type === 'warning') {
-                iconEl.className = "w-14 h-14 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto text-xl border border-amber-300";
-                iconEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
-            } else if (type === 'success') {
-                iconEl.className = "w-14 h-14 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-xl border border-amber-300";
-                iconEl.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
-            }
-            document.getElementById('customModal').classList.remove('hidden');
+        const tbody = document.getElementById('adminTableBody');
+        if (allRecords.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-stone-500 font-bold text-sm">目前尚無任何抽獎紀錄</td></tr>`;
+            return;
         }
 
-        window.closeCustomModal = function() {
-            document.getElementById('customModal').classList.add('hidden');
-        };
+        tbody.innerHTML = allRecords.map((r, idx) => `
+            <tr class="hover:bg-amber-50/50 transition-all">
+                <td class="py-3.5 px-4 text-xs font-mono text-stone-600 font-bold">${r.timestamp || '--'}</td>
+                <td class="py-3.5 px-4 font-bold text-stone-800 text-xs"><span class="px-2 py-1 rounded bg-amber-100 text-castle-redDark border border-amber-300">${r.region || '未指定'}</span></td>
+                <td class="py-3.5 px-4 font-bold text-stone-900">${r.plannerName || '--'}</td>
+                <td class="py-3.5 px-4 font-bold text-stone-900">${r.name}</td>
+                <td class="py-3.5 px-4 font-mono text-stone-700 font-bold">${r.phone}</td>
+                <td class="py-3.5 px-4 font-serif font-black text-castle-red text-base">${r.prizeName}</td>
+                <td class="py-3.5 px-4">
+                    <span class="px-3 py-1 rounded-full text-[11px] font-black ${r.status === '已作廢' ? 'bg-red-100 text-red-800 border border-red-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+                        ${r.status || '已通過審核'}
+                    </span>
+                </td>
+                <td class="py-3.5 px-4 text-center space-x-1.5 whitespace-nowrap">
+                    <button onclick="playClickSound(); toggleRecordStatus('${r.phone}')" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-castle-redDark rounded-lg text-xs font-bold transition-all border border-amber-300 cursor-pointer shadow-sm" title="切換審核狀態">
+                        狀態
+                    </button>
+                    <button onclick="playClickSound(); requestAdminAction('delete', '${r.phone}')" class="px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition-all border border-red-300 cursor-pointer shadow-sm" title="刪除紀錄">
+                        刪除
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
 
-        window.onload = function() {
-            initSystemStorage();
-        };
-    </script>
-</body>
-</html>
+    window.toggleRecordStatus = function(phone) {
+        const record = allRecords.find(r => r.phone === phone);
+        if (!record) return;
+        record.status = record.status === '已作廢' ? '已通過審核' : '已作廢';
+        saveRecordsToStorage();
+    };
+
+    window.filterAdminTable = function() {
+        const query = document.getElementById('adminSearchInput').value.toLowerCase();
+        const rows = document.querySelectorAll('#adminTableBody tr');
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(query) ? '' : 'none';
+        });
+    };
+
+    window.exportDataCSV = function() {
+        loadRecordsFromStorage();
+        let csv = '\uFEFF抽獎時間,服務分店,規劃師姓名,客戶姓名,手機號碼,中獎票券,審核狀態\n';
+        allRecords.forEach(r => {
+            csv += `"${r.timestamp}","${r.region || '未指定'}","${r.plannerName || '--'}","${r.name}","${r.phone}","${r.prizeName}","${r.status || '已通過審核'}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `微笑城堡窗簾九宮格報表_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+    };
+
+    function showCustomModal(message, title = "提示訊息", type = "info") {
+        document.getElementById('customModalTitle').innerText = title;
+        document.getElementById('customModalMessage').innerText = message;
+        const iconEl = document.getElementById('customModalIcon');
+        if (type === 'warning') {
+            iconEl.className = "w-14 h-14 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center mx-auto text-xl border border-amber-300";
+            iconEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i>`;
+        } else if (type === 'success') {
+            iconEl.className = "w-14 h-14 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto text-xl border border-amber-300";
+            iconEl.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+        }
+        document.getElementById('customModal').classList.remove('hidden');
+    }
+
+    window.closeCustomModal = function() {
+        document.getElementById('customModal').classList.add('hidden');
+    };
+
+    window.onload = function() {
+        loadRecordsFromStorage();
+    };
+</script>
+
