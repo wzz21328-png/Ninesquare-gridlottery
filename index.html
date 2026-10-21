@@ -96,6 +96,7 @@
             white-space: nowrap;
             animation: marquee 28s linear infinite;
         }
+        /* Modal Popup Bounce Animation */
         @keyframes modalBounce {
             0% { transform: scale(0.3); opacity: 0; }
             50% { transform: scale(1.05); opacity: 1; }
@@ -149,7 +150,6 @@
 
     <main class="flex-grow max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
 
-        <!-- Frontend View -->
         <div id="frontendView" class="space-y-6 sm:space-y-8">
             <div class="text-center max-w-3xl mx-auto space-y-2 px-2">
                 <span class="inline-flex items-center space-x-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
@@ -252,6 +252,7 @@
                     </div>
                 </div>
 
+                <!-- 9-Grid Machine Section (Index 6 = 頭獎 1000元 at Bottom-Left Corner) -->
                 <div class="lg:col-span-7 luxury-card rounded-3xl p-4 sm:p-6 md:p-7 flex flex-col items-center justify-center text-center space-y-5 shadow-xl">
                     <div class="w-full flex items-center justify-between border-b border-amber-200 pb-3">
                         <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
@@ -598,7 +599,7 @@
         // Load records from localStorage for 100% reliable offline & GitHub Pages support
         function loadRecords() {
             try {
-                const stored = localStorage.getItem('smile_castle_draw_records_v4');
+                const stored = localStorage.getItem('smile_castle_draw_records_v5');
                 if (stored) {
                     allRecords = JSON.parse(stored);
                 }
@@ -610,7 +611,7 @@
 
         function saveRecords() {
             try {
-                localStorage.setItem('smile_castle_draw_records_v4', JSON.stringify(allRecords));
+                localStorage.setItem('smile_castle_draw_records_v5', JSON.stringify(allRecords));
             } catch(e) {}
             updateStatsAndTable();
         }
@@ -696,6 +697,7 @@
             { index: 7, name: '500元', type: 'cash' }
         ];
 
+        // Custom User Probability Distribution (from smallest to biggest prize):
         // - 500元四獎: 20% (indices 1, 7 -> 10% each)
         // - 600元三獎: 25% (indices 3, 4 -> 12.5% each)
         // - 800元二獎: 35% (indices 2, 5 -> 17.5% each)
