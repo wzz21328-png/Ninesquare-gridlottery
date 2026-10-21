@@ -1,7 +1,7 @@
 <!-- Top Marquee Banner -->
 <div class="bg-gradient-to-r from-castle-redDark via-castle-red to-castle-redDark text-white py-2 px-4 text-xs sm:text-sm font-bold tracking-wider overflow-hidden shadow-md shrink-0">
     <div class="whitespace-nowrap animate-marquee flex items-center space-x-12">
-        <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 達標貴賓專屬九宮格抽獎好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
+        <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 滿額專屬九宮格抽獎好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
         <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i> 幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 滿額訂單直接折給你啦！</span>
     </div>
 </div>
@@ -46,11 +46,11 @@
         <div class="text-center max-w-3xl mx-auto space-y-2 px-2">
             <span class="inline-flex items-center space-x-1.5 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-xs font-black bg-amber-100 text-castle-redDark border border-amber-300 shadow-sm">
                 <i class="fa-solid fa-star text-amber-600"></i>
-                <span>達標貴賓專屬・最高享 9 折與高額現金折價回饋</span>
+                <span>滿額加碼・最高享 9 折與高額現金折價回饋</span>
                 <i class="fa-solid fa-star text-amber-600"></i>
             </span>
             <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-black gold-gradient-text tracking-tight">
-                達標貴賓專屬九宮格抽獎機
+                滿額加碼九宮格抽獎機
             </h2>
             <p class="text-xs sm:text-sm text-stone-700 font-bold leading-relaxed px-2">
                 請規劃師選擇服務分店、輸入姓名與客戶電話。系統嚴格防重複，每組手機號碼僅限享 <strong class="text-castle-redDark font-extrabold">1 次</strong> 抽獎機會！
@@ -149,7 +149,7 @@
                 <div class="w-full flex items-center justify-between border-b border-amber-200 pb-3">
                     <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
                         <i class="fa-solid fa-dice text-castle-red animate-spin"></i>
-                        <span>達標貴賓專屬九宮格抽獎機</span>
+                        <span>滿額專屬九宮格抽獎機</span>
                     </h3>
                     <span id="slotStatusBadge" class="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black bg-stone-100 text-stone-700 border border-stone-300">🔒 請先登記驗證</span>
                 </div>
@@ -220,6 +220,13 @@
                         <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
                         <span><i class="fa-solid fa-gift text-castle-red mr-1.5"></i> 幸運九宮格獎項：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) </span>
                     </div>
+                </div>
+
+                <!-- Force Show Result Fallback Button -->
+                <div id="forceResultTrigger" class="hidden pt-2">
+                    <button onclick="playClickSound(); forceOpenModal()" class="px-5 py-2.5 bg-castle-red text-white text-xs font-black rounded-xl shadow-md border border-amber-300 animate-bounce cursor-pointer">
+                        🎉 點此立即查看中獎憑證
+                    </button>
                 </div>
             </div>
 
@@ -373,12 +380,12 @@
 </main>
 
 <footer class="bg-stone-900 text-amber-200/90 border-t border-amber-400/40 mt-12 py-6 text-center text-xs font-bold px-4 shadow-inner shrink-0">
-    <p>© 2026 微笑城堡窗簾 Smile Castle Curtains. 達標貴賓專屬九宮格抽獎. All Rights Reserved.</p>
+    <p>© 2026 微笑城堡窗簾 Smile Castle Curtains. 滿額專屬九宮格抽獎. All Rights Reserved.</p>
 </footer>
 
-<!-- Result Modal / Coupon Ticket Screenshot Card Overlay -->
-<div id="resultModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div id="screenshotCard" class="bg-gradient-to-b from-white via-amber-50 to-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-amber-400 relative space-y-4 text-center transform transition-all scale-95 opacity-0">
+<!-- Result Modal / Coupon Ticket Screenshot Card Overlay (Guaranteed Display Fix) -->
+<div id="resultModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div id="screenshotCard" class="bg-gradient-to-b from-white via-amber-50 to-white rounded-3xl max-w-sm sm:max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-amber-400 relative space-y-4 text-center">
         <!-- Crown Top -->
         <div class="absolute -top-7 left-1/2 transform -translate-x-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-castle-red to-castle-redDark text-amber-300 flex items-center justify-center shadow-lg border-2 border-amber-400">
             <i class="fa-solid fa-crown text-xl"></i>
@@ -450,7 +457,7 @@
     </div>
 </div>
 
-<!-- Admin Action Password Verification Modal (For Deletion & Reset matching Admin Password wzz328) -->
+<!-- Admin Action Password Verification Modal -->
 <div id="adminActionModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="luxury-card rounded-3xl max-w-sm w-full p-6 sm:p-8 space-y-6 shadow-2xl">
         <div class="text-center space-y-2">
@@ -487,16 +494,17 @@
 </div>
 
 <script>
-    // Global State & Robust LocalStorage Synchronization System
+    // Robust Dual-Engine Storage & State Management for GitHub Pages Static Hosting
     let allRecords = [];
     let currentVerifiedUser = null; 
     let hasSpun = false;
     let pendingAction = null;
+    let lastWonRecord = null;
 
     // Load records from localStorage with multi-tab storage event synchronization
     function loadRecordsFromStorage() {
         try {
-            const data = localStorage.getItem('smile_castle_records_v3');
+            const data = localStorage.getItem('smile_castle_records_v4');
             allRecords = data ? JSON.parse(data) : [];
         } catch (e) {
             allRecords = [];
@@ -506,21 +514,20 @@
 
     function saveRecordsToStorage() {
         try {
-            localStorage.setItem('smile_castle_records_v3', JSON.stringify(allRecords));
+            localStorage.setItem('smile_castle_records_v4', JSON.stringify(allRecords));
             updateStatsAndTable();
         } catch (e) {
             console.error("Storage error:", e);
         }
     }
 
-    // Listen to storage changes for real-time admin sync across tabs/windows
     window.addEventListener('storage', (e) => {
-        if (e.key === 'smile_castle_records_v3') {
+        if (e.key === 'smile_castle_records_v4') {
             loadRecordsFromStorage();
         }
     });
 
-    // Web Audio Synthesizer
+    // Web Audio Sound Synthesizer
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     window.playClickSound = function() {
@@ -600,7 +607,7 @@
         { index: 7, name: '500元', type: 'cash' }
     ];
 
-    // Optimized Winning Probabilities (5% 9折, 40% 1000元, 35% 800元, 12% 600元, 8% 500元)
+    // Optimized Probabilities (5% 9折, 40% 1000元, 35% 800元, 12% 600元, 8% 500元)
     function getRandomWinningPrize() {
         const rand = Math.random() * 100;
         let targetIndex = 6;
@@ -640,6 +647,7 @@
 
     window.handleRegistration = function(e) {
         e.preventDefault();
+        loadRecordsFromStorage();
         const region = document.getElementById('custRegion').value;
         const plannerName = document.getElementById('plannerName').value.trim();
         const name = document.getElementById('custName').value.trim();
@@ -680,6 +688,7 @@
         document.getElementById('customerForm').reset();
         document.getElementById('formFeedback').classList.add('hidden');
         document.getElementById('activeSessionBox').classList.add('hidden');
+        document.getElementById('forceResultTrigger').classList.add('hidden');
         const spinBtn = document.getElementById('spinActionBtn');
         spinBtn.disabled = true;
         spinBtn.classList.add('opacity-50', 'cursor-not-allowed');
@@ -739,7 +748,9 @@
                         status: '已通過審核'
                     };
 
-                    // Save to localStorage immediately and trigger storage update
+                    lastWonRecord = recordData;
+
+                    // Save to local storage for immediate admin sync
                     const existingIdx = allRecords.findIndex(r => r.phone === recordData.phone);
                     if (existingIdx >= 0) {
                         allRecords[existingIdx] = recordData;
@@ -758,7 +769,11 @@
                         colors: ['#f59e0b', '#b92b33', '#ffffff', '#fbbf24']
                     });
 
-                    showResultModal(currentVerifiedUser.region, currentVerifiedUser.plannerName, currentVerifiedUser.name, currentVerifiedUser.phone, winningPrize.name, recordData.timestamp);
+                    // Directly display modal with vanilla JS
+                    showResultModal(recordData.region, recordData.plannerName, recordData.name, recordData.phone, recordData.prizeName, recordData.timestamp);
+                    
+                    // Show fallback button just in case
+                    document.getElementById('forceResultTrigger').classList.remove('hidden');
                 }, 300);
             }
         }
@@ -784,23 +799,23 @@
         }
 
         const modal = document.getElementById('resultModal');
-        const card = document.getElementById('screenshotCard');
+        modal.style.display = 'flex';
         modal.classList.remove('hidden');
-        setTimeout(() => {
-            card.classList.remove('scale-95', 'opacity-0');
-            card.classList.add('scale-100', 'opacity-100');
-        }, 50);
     }
+
+    window.forceOpenModal = function() {
+        if (lastWonRecord) {
+            showResultModal(lastWonRecord.region, lastWonRecord.plannerName, lastWonRecord.name, lastWonRecord.phone, lastWonRecord.prizeName, lastWonRecord.timestamp);
+        } else {
+            showCustomModal("目前尚無最近一次的中獎紀錄可顯示。", "提示", "warning");
+        }
+    };
 
     window.closeResultModal = function() {
         const modal = document.getElementById('resultModal');
-        const card = document.getElementById('screenshotCard');
-        card.classList.remove('scale-100', 'opacity-100');
-        card.classList.add('scale-95', 'opacity-0');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            window.resetSession();
-        }, 200);
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        window.resetSession();
     };
 
     window.captureAndSaveScreenshot = function() {
@@ -952,7 +967,7 @@
 
         if (action.type === 'resetAll') {
             allRecords = [];
-            localStorage.removeItem('smile_castle_records_v3');
+            localStorage.removeItem('smile_castle_records_v4');
             updateStatsAndTable();
             showCustomModal("所有抽獎紀錄已重新歸零！", "歸零完成", "success");
         } else if (action.type === 'delete' && action.phone) {
@@ -963,6 +978,7 @@
     };
 
     function updateStatsAndTable() {
+        loadRecordsFromStorage();
         const total = allRecords.length;
         const count9zhes = allRecords.filter(r => r.prizeName === '9折').length;
         const countCash = allRecords.filter(r => r.prizeType === 'cash').length;
@@ -1076,4 +1092,3 @@
         loadRecordsFromStorage();
     };
 </script>
-
