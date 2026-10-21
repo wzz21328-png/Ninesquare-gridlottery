@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>微笑城堡窗簾 - 達標專屬九宮格抽獎機系統</title>
+    <title>微笑城堡窗簾 - 九宮格抽獎機</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -832,7 +832,7 @@
 
             currentVerifiedUser = { region, plannerName, name, phone };
             feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center space-x-2 shadow-sm";
-            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-700 text-lg shrink-0"></i><span>驗證成功！規劃師 ${plannerName} 服務之 ${name} 貴賓可開始抽獎。</span>`;
+            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-700 text-lg shrink-0"></i><span>驗證成功！規劃師 ${plannerName} 服務之 ${name} 符合資格可開始抽獎。</span>`;
             feedbackEl.classList.remove('hidden');
 
             document.getElementById('sessionCustomerDisplay').innerText = `[${region}] 規:${plannerName} / 客:${name} (${phone})`;
