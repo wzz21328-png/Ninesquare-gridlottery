@@ -160,7 +160,7 @@
             </span>
 
             <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-black gold-gradient-text tracking-tight text-center">
-                超級星期11九宮格抽獎機
+                滿額專屬九宮格抽獎機
             </h2>
 
 <div class="w-full flex justify-center items-center">
@@ -188,6 +188,11 @@
                         <span class="text-[10px] sm:text-[11px] px-2.5 py-1 rounded-full bg-amber-100 text-castle-redDark font-mono font-black border border-amber-300">STEP 1</span>
                     </div>
 
+                    <div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 space-y-2">
+                        <label for="campaignSelect" class="block text-xs font-black text-castle-redDark">選擇本次抽獎活動</label>
+                        <select id="campaignSelect" onchange="changeCampaign()" class="w-full p-3 rounded-xl border border-amber-300 text-sm font-bold bg-white"><option value="">活動載入中…</option></select>
+                        <p class="text-[11px] text-stone-600">同一期、同手機限抽一次；參加新活動不影響舊券。</p>
+                    </div>
                     <form id="customerForm" onsubmit="handleRegistration(event)" class="space-y-3.5">
                         <div>
                             <label class="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">服務地區 / 分店</label>
@@ -243,7 +248,7 @@
                                 <input type="tel" id="custPhone" required placeholder="例如：0912345678" pattern="[0-9]{10}" title="請輸入10位數字手機號碼"
                                     class="w-full pl-10 pr-4 py-3 bg-white border border-amber-300 rounded-2xl text-stone-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-castle-red shadow-sm transition-all font-mono font-bold">
                             </div>
-                            <p class="text-[11px] text-red-600 font-bold mt-1">※ 系統防呆：同電話號碼僅能參與抽獎一次。</p>
+                            <p class="text-[11px] text-red-600 font-bold mt-1">※ 系統防呆：同電話號碼於同一期活動僅能抽獎一次。</p>
                         </div>
 
                         <div id="formFeedback" class="hidden p-3 rounded-2xl text-xs sm:text-sm font-bold flex items-start space-x-2 shadow-sm"></div>
@@ -352,7 +357,7 @@
                     <span>防漏截圖・快速折扣查詢專區</span>
                 </span>
                 <h2 class="font-serif text-2xl sm:text-3xl font-black gold-gradient-text">手機號碼補查折扣券</h2>
-                <p class="text-xs sm:text-sm text-stone-700 font-bold">若未及時截圖，可在此輸入客戶手機號碼快速查詢中獎折扣與票面憑證！</p>
+                <p class="text-xs sm:text-sm text-stone-700 font-bold">若未及時截圖，可輸入手機號碼查詢各期優惠券；此測試版尚未啟用簡訊驗證，勿公開對外使用。</p>
             </div>
 
             <div class="luxury-card rounded-3xl p-5 sm:p-8 space-y-6 shadow-xl">
@@ -376,6 +381,32 @@
 
         <!-- Admin View -->
         <div id="adminView" class="hidden space-y-6">
+            <div class="luxury-card rounded-3xl p-5 sm:p-6 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2"><h3 class="font-serif font-black text-castle-redDark text-lg">活動管理</h3><span class="text-xs text-stone-500">活動設定與既有抽獎紀錄儲存在相同 Firestore 集合</span></div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                    <label class="text-xs font-bold">管理中的活動<select id="adminCampaignManage" onchange="chooseManageCampaign()" class="mt-1 w-full p-3 border border-amber-300 rounded-xl bg-white"></select></label>
+                    <label class="text-xs font-bold">活動名稱<input id="campaignEditName" maxlength="50" class="mt-1 w-full p-3 border border-amber-300 rounded-xl" placeholder="例如：12月年終感謝祭"></label>
+                    <label class="text-xs font-bold">活動代碼（英文、數字、連字號）<input id="campaignEditId" maxlength="32" class="mt-1 w-full p-3 border border-amber-300 rounded-xl" placeholder="例如：2026-12"></label>
+                </div>
+                <div class="flex flex-wrap gap-2 items-center">
+                    <label class="flex gap-2 items-center text-sm font-bold"><input type="checkbox" id="campaignEditOpen" checked> 允許前台抽獎</label>
+                    <button onclick="saveCampaign(false)" class="px-4 py-2 bg-castle-red text-white rounded-xl text-xs font-bold">儲存活動設定</button>
+                    <button onclick="prepareNewCampaign()" class="px-4 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold">填寫新活動</button>
+                    <button onclick="saveCampaign(true)" class="px-4 py-2 bg-amber-100 border border-amber-300 rounded-xl text-xs font-bold">建立新活動</button>
+                    <span id="campaignSaveStatus" class="text-xs text-stone-700"></span>
+                </div>
+                <p class="text-xs text-amber-800">請勿重複使用活動代碼。已建立的活動代碼不可更改，避免歷史抽獎資料對不上。</p>
+            </div>
+            <div class="luxury-card rounded-3xl p-5 sm:p-6 space-y-3">
+                <div class="flex flex-wrap justify-between gap-3 items-end">
+                    <label class="font-bold text-sm text-castle-redDark">依活動統計與篩選
+                        <select id="adminCampaignFilter" onchange="changeAdminCampaignFilter()" class="mt-2 block min-w-56 p-3 rounded-xl border border-amber-300 bg-white text-sm"><option value="all">全部活動</option></select>
+                    </label>
+                    <button onclick="refreshAdminCounts(true)" class="px-3 py-2 text-xs border border-amber-300 rounded-xl font-bold">重新統計本活動</button>
+                </div>
+                <div id="campaignCountSummary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm"></div>
+                <p id="statScopeNote" class="text-xs text-stone-500">統計依所選活動計算，獎項分布需手動點選完整統計以節省 Firestore 讀取。</p>
+            </div>
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 luxury-card p-5 sm:p-6 rounded-3xl shadow-xl">
                 <div>
                     <div class="flex items-center space-x-2">
@@ -391,10 +422,7 @@
                         <i class="fa-solid fa-file-excel"></i>
                         <span>匯出 CSV</span>
                     </button>
-                    <button onclick="playClickSound(); requestAdminAction('resetAll')" class="px-3.5 py-2.5 bg-red-100 hover:bg-red-200 text-red-800 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-red-300 cursor-pointer">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        <span>資料歸零</span>
-                    </button>
+<!-- 為避免誤刪歷史紀錄，移除全資料歸零按鈕 -->
                     <button onclick="playClickSound(); lockAdmin()" class="px-3.5 py-2.5 bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-amber-400 cursor-pointer shadow-sm">
                         <i class="fa-solid fa-lock-open"></i>
                         <span>登出後台</span>
@@ -442,6 +470,7 @@
                 </div>
             </div>
 
+            <div class="luxury-card rounded-2xl p-4"><p class="text-xs text-stone-600">跨期參加的客戶，第二筆及後續抽獎紀錄會自動標示「舊客」；第一期不回寫。</p><p class="text-lg font-bold text-castle-redDark">本活動舊客筆數：<span id="statOldCount">—</span></p></div>
             <!-- Detailed Individual Prize Statistics Breakdown -->
             <div class="luxury-card rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-amber-200 pb-3">
@@ -449,7 +478,7 @@
                         <i class="fa-solid fa-chart-pie text-castle-red"></i>
                         <span>個別獎項中獎數量與佔比統計</span>
                     </h3>
-                    <span id="cloudSyncStatus" class="text-xs font-bold text-red-700">● 雲端連線中</span>
+                    <div class="flex items-center gap-2"><button onclick="refreshPrizeCounts()" class="px-3 py-2 bg-amber-100 text-xs font-bold rounded-xl border border-amber-300">計算本活動完整獎項</button><span id="cloudSyncStatus" class="text-xs font-bold text-red-700">● 雲端連線中</span></div>
                 </div>
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="breakdownStatsGrid"></div>
             </div>
@@ -472,9 +501,11 @@
                     <button id="adminNextPageBtn" type="button" onclick="loadAdminPage(false)" disabled class="px-3 py-2 rounded-lg bg-castle-red text-white font-bold disabled:opacity-40">下一頁（最多 50 筆）</button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[780px]">
+                    <table class="w-full text-left border-collapse min-w-[1050px]">
                         <thead>
                             <tr class="bg-amber-50 text-castle-redDark text-xs font-black uppercase tracking-wider border-b border-amber-200">
+                                <th class="py-3.5 px-4">活動期數</th>
+                                <th class="py-3.5 px-4">客戶類別</th>
                                 <th class="py-3.5 px-4">抽獎時間</th>
                                 <th class="py-3.5 px-4">服務分店</th>
                                 <th class="py-3.5 px-4">規劃師</th>
@@ -485,6 +516,8 @@
                                 <th class="py-3.5 px-4 text-center">操作</th>
                             </tr>
                             <tr class="bg-white border-b border-amber-200 text-xs">
+                                <th class="px-2 py-2">依上方活動</th>
+                                <th class="px-2 py-2"><select id="filterOld" onchange="filterAdminTable()" class="border border-amber-200 rounded-lg px-2 py-2"><option value="">全部</option><option value="old">舊客</option><option value="new">首次參加</option></select></th>
                                 <th class="px-2 py-2"><input type="text" id="filterTimestamp" oninput="filterAdminTable()" placeholder="日期／時間" aria-label="篩選抽獎時間" class="w-32 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal" /></th>
                                 <th class="px-2 py-2"><select id="filterRegion" onchange="filterAdminTable()" aria-label="篩選服務分店" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal"><option value="">全部分店</option></select></th>
                                 <th class="px-2 py-2"><select id="filterPlanner" onchange="filterAdminTable()" aria-label="篩選規劃師" class="w-28 max-w-full border border-amber-200 rounded-lg px-2 py-2 font-normal"><option value="">全部規劃師</option></select></th>
@@ -531,6 +564,7 @@
                         <span class="truncate pr-1">客戶：<strong id="modalCustName" class="text-castle-redDark">--</strong></span>
                         <span class="truncate">電話：<strong id="modalCustPhone" class="text-castle-redDark font-mono">--</strong></span>
                     </div>
+                    <div class="text-[11px] text-castle-redDark font-bold text-center" id="modalCampaignName">--</div>
                     <div class="text-[11px] text-stone-500 font-mono text-center pt-0.5" id="modalTimestamp">--</div>
                     
                     <!-- Ticket Coupon Display Box -->
@@ -580,6 +614,7 @@
                 <span>客戶：<strong id="expCustName" style="color: #8b1e24;">--</strong></span>
                 <span>電話：<strong id="expCustPhone" style="color: #8b1e24; font-family: monospace;">--</strong></span>
             </div>
+            <div style="font-size: 12px; color: #8b1e24; font-weight: bold; text-align: center;" id="expCampaignName">--</div>
             <div style="font-size: 10px; color: #777; font-family: monospace; text-align: center; margin-bottom: 12px;" id="expTimestamp">--</div>
 
             <div style="background: linear-gradient(135deg, #fffdf9 0%, #fef3c7 100%); border: 1.5px dashed #d97706; border-radius: 14px; padding: 16px; text-align: center;">
@@ -649,7 +684,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, runTransaction, writeBatch, updateDoc, deleteDoc, getDocFromServer, getDocsFromServer, query, orderBy, documentId, startAfter, limit, getCountFromServer, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, runTransaction, writeBatch, updateDoc, deleteDoc, getDocFromServer, getDocsFromServer, query, orderBy, documentId, startAfter, limit, getCountFromServer, where, setDoc, startAt, endAt } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let app, db, auth;
         let allRecords = [];
@@ -668,6 +703,133 @@
         let diagnosticResult = '';
         const FIREBASE_PROJECT_ID = 'ninesquare-c5d6f';
         const recordsCollectionPath = ['artifacts', 'ninesquare-c5d6f', 'public', 'data', 'castle_draw_records_v12'];
+        // 仍使用既有 collection，避免另外設定新集合規則或同步讀取全表。
+        // 舊客資料原文件 ID 為手機號碼，新活動則為「活動代碼__手機」。
+        const LEGACY_ID = '2026-11';
+        const CONFIG_DOC_ID = '__campaign_settings';
+        const DEFAULT_CAMPAIGNS = [{ id: LEGACY_ID, name: '11月｜超級星期11', open: true }];
+        let campaigns = DEFAULT_CAMPAIGNS.map(c => ({...c}));
+        let selectedCampaignId = LEGACY_ID;
+        let adminCampaignId = 'all';
+        let selectedManageId = LEGACY_ID;
+        const recordDocId = (id, phone) => id === LEGACY_ID ? phone : `campaign_${id}__${phone}`;
+        const isPhone = phone => /^09\d{8}$/.test(phone);
+        const isRecordDoc = d => d.id !== CONFIG_DOC_ID && (isPhone(d.data().phone || '') || isPhone(d.id));
+        const getCampaign = id => campaigns.find(c => c.id === id) || DEFAULT_CAMPAIGNS[0];
+        const campaignOf = r => r.campaignId || LEGACY_ID;
+        const getCampaignName = id => getCampaign(id).name;
+        function campaignQuery(id, n = ADMIN_PAGE_SIZE, cursor = null) {
+            let pieces;
+            if (id === 'all') pieces = [orderBy(documentId())];
+            else if (id === LEGACY_ID) pieces = [orderBy(documentId()), startAt('0'), endAt('9\uf8ff')];
+            else pieces = [where('campaignId','==',id), orderBy(documentId())];
+            if (cursor && id !== LEGACY_ID) pieces.push(startAfter(cursor));
+            // Legacy 用 documentId range 查詢。為相容分頁，legacy 額外處理 startAfter。
+            if (cursor && id === LEGACY_ID) pieces = [orderBy(documentId()), startAfter(cursor), endAt('9\uf8ff')];
+            pieces.push(limit(n));
+            return query(recordsRef, ...pieces);
+        }
+        async function checkPriorCampaign(phone, currentId) {
+            const otherIds = campaigns.filter(c => c.id !== currentId).map(c => c.id);
+            // 舊活動永遠先於新活動，不用下載整份客戶名單。
+            for (const id of otherIds) {
+                const snap = await getDocFromServer(doc(recordsRef, recordDocId(id, phone)));
+                if (snap.exists()) {
+                    const prior = snap.data();
+                    if (!prior.createdAtMs || !currentId || id === LEGACY_ID || prior.createdAtMs < Date.now()) return true;
+                }
+            }
+            return false;
+        }
+        function renderCampaignSelectors() {
+            const select = document.getElementById('campaignSelect');
+            const prev = select.value || selectedCampaignId;
+            select.replaceChildren();
+            campaigns.filter(c=>c.open).forEach(c => select.add(new Option(c.name,c.id)));
+            if (!select.options.length) select.add(new Option('目前沒有開放中的活動',''));
+            selectedCampaignId = campaigns.some(c=>c.id===prev && c.open) ? prev : (select.options[0]?.value || '');
+            select.value = selectedCampaignId;
+            const heading = document.querySelector('#frontendView h2');
+            if (heading) heading.textContent = selectedCampaignId ? `${getCampaignName(selectedCampaignId)}九宮格抽獎機` : '目前無開放活動';
+            const adminFilter = document.getElementById('adminCampaignFilter');
+            const filterVal = adminFilter.value || 'all';
+            adminFilter.replaceChildren(new Option('全部活動','all'));
+            campaigns.forEach(c=> adminFilter.add(new Option(c.name,c.id)));
+            adminFilter.value=campaigns.some(c=>c.id===filterVal) ? filterVal : 'all';
+            adminCampaignId=adminFilter.value;
+            const manager=document.getElementById('adminCampaignManage');
+            const managerVal=manager.value || selectedManageId;
+            manager.replaceChildren();
+            campaigns.forEach(c=>manager.add(new Option(c.name,c.id)));
+            manager.value=campaigns.some(c=>c.id===managerVal)?managerVal:LEGACY_ID;
+            selectedManageId=manager.value;
+            chooseManageCampaign();
+        }
+        window.changeCampaign = function() {
+            selectedCampaignId=document.getElementById('campaignSelect').value;
+            resetSession();
+            renderCampaignSelectors();
+        };
+        window.chooseManageCampaign = function() {
+            selectedManageId=document.getElementById('adminCampaignManage').value;
+            const c=getCampaign(selectedManageId);
+            document.getElementById('campaignEditName').value=c.name;
+            document.getElementById('campaignEditId').value=c.id;
+            document.getElementById('campaignEditId').disabled=true;
+            document.getElementById('campaignEditOpen').checked=!!c.open;
+        };
+        window.prepareNewCampaign=function(){
+            document.getElementById('campaignEditName').value='';
+            document.getElementById('campaignEditId').disabled=false;
+            document.getElementById('campaignEditId').value='';
+            document.getElementById('campaignEditOpen').checked=true;
+            document.getElementById('campaignSaveStatus').textContent='請輸入新活動名稱與代碼，再點「建立新活動」。';
+            document.getElementById('campaignEditName').focus();
+        };
+        window.saveCampaign = async function(createNew) {
+            if (!isAdminLoggedIn || !requireCloud()) return;
+            const name=document.getElementById('campaignEditName').value.trim();
+            const typed=document.getElementById('campaignEditId').value.trim();
+            const id=createNew ? typed : selectedManageId;
+            const status=document.getElementById('campaignSaveStatus');
+            if (!name || !/^[a-zA-Z0-9-]{3,32}$/.test(id)) {showCustomModal('請填入活動名稱及 3-32 碼英文、數字或連字號的代碼','欄位格式錯誤','warning');return;}
+            if (createNew && campaigns.some(c=>c.id===id)) {showCustomModal('這個活動代碼已存在，請使用不同代碼。','活動重複','warning');return;}
+            const item={id,name,open:document.getElementById('campaignEditOpen').checked};
+            status.textContent='正在儲存活動設定…';
+            try {
+                const ref=doc(recordsRef,CONFIG_DOC_ID);
+                await runTransaction(db,async tx=>{
+                    const existing=await tx.get(ref);
+                    const remote=existing.exists() && Array.isArray(existing.data().campaigns) ? existing.data().campaigns : DEFAULT_CAMPAIGNS;
+                    const list=remote.map(c=>({...c}));
+                    if (createNew) {
+                        if (list.some(c=>c.id===id)) throw Error('活動代碼已存在');
+                        list.push(item);
+                    } else {
+                        const idx=list.findIndex(c=>c.id===id);
+                        if (idx<0) throw Error('找不到指定活動');
+                        list[idx]={...list[idx],name,open:item.open};
+                    }
+                    tx.set(ref,{campaigns:list,updatedAtMs:Date.now()});
+                });
+                await loadCampaignSettings();
+                status.textContent='已儲存並同步到 Firebase';
+                if(createNew) {selectedManageId=id;renderCampaignSelectors();}
+            } catch(e){status.textContent='儲存失敗';showCloudError('活動設定儲存失敗',e);}
+        };
+        async function loadCampaignSettings() {
+            const snap=await getDocFromServer(doc(recordsRef,CONFIG_DOC_ID));
+            campaigns=snap.exists() && Array.isArray(snap.data().campaigns) && snap.data().campaigns.length ? snap.data().campaigns : DEFAULT_CAMPAIGNS.map(c=>({...c}));
+            renderCampaignSelectors();
+        }
+        window.changeAdminCampaignFilter = function(){
+            adminCampaignId=document.getElementById('adminCampaignFilter').value;
+            adminPageNumber=0;
+            adminLastVisible=null;
+            allRecords=[];
+            updateStatsAndTable();
+            loadAdminPage(true);
+        };
 
         function setCloudStatus(ok, message) {
             cloudReady = ok;
@@ -823,6 +985,7 @@ function getRandomWinningPrize() {
                 // 啟動時只讀取一個不存在的診斷文件，不再訂閱全體中獎資料。
                 // 伺服器回應「文件不存在」仍代表資料庫可讀取。
                 await getDocFromServer(doc(recordsRef, 'connection_check_test'));
+                await loadCampaignSettings();
                 setCloudStatus(true, '');
             } catch (err) {
                 console.error('Firebase 初始化或登入失敗:', err);
@@ -869,7 +1032,8 @@ function getRandomWinningPrize() {
             registerBtn.disabled = true;
             let existing = null;
             try {
-                const existingSnap = await getDocFromServer(doc(recordsRef, phone));
+                if (!selectedCampaignId || !getCampaign(selectedCampaignId).open) throw new Error('這一期活動未開放抽獎');
+                const existingSnap = await getDocFromServer(doc(recordsRef, recordDocId(selectedCampaignId,phone)));
                 existing = existingSnap.exists() ? existingSnap.data() : null;
             } catch (err) {
                 console.error('驗證電話時雲端查詢失敗:', err);
@@ -885,9 +1049,9 @@ function getRandomWinningPrize() {
                 return;
             }
 
-            currentVerifiedUser = { region, plannerName, name, phone };
+            currentVerifiedUser = { region, plannerName, name, phone, campaignId: selectedCampaignId, campaignName:getCampaignName(selectedCampaignId) };
             feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center space-x-2 shadow-sm";
-            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-700 text-lg shrink-0"></i><span>驗證成功！規劃師 ${plannerName} 服務之 ${name} 符合資格可開始抽獎。</span>`;
+            feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-700 text-lg shrink-0"></i><span>驗證成功！${escapeTableText(name)} 可參加「${escapeTableText(getCampaignName(selectedCampaignId))}」。</span>`;
             feedbackEl.classList.remove('hidden');
 
             document.getElementById('sessionCustomerDisplay').innerText = `[${region}] 規:${plannerName} / 客:${name} (${phone})`;
@@ -963,17 +1127,24 @@ function getRandomWinningPrize() {
                             prizeName: winningPrize.name,
                             prizeType: winningPrize.type,
                             timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
-                            status: '已通過審核'
+                            status: '已通過審核',
+                            campaignId: currentVerifiedUser.campaignId,
+                            campaignName: currentVerifiedUser.campaignName
                         };
 
                         // 以電話為固定文件 ID，transaction 原子檢查避免不同裝置重複抽獎。
                         recordData.createdAtMs = Date.now();
                         try {
                             if (!requireCloud()) { hasSpun = false; return; }
-                            const recordRef = doc(recordsRef, currentVerifiedUser.phone);
+                            const recordRef = doc(recordsRef, recordDocId(currentVerifiedUser.campaignId,currentVerifiedUser.phone));
                             await runTransaction(db, async transaction => {
                                 const existing = await transaction.get(recordRef);
                                 if (existing.exists()) throw new Error('此手機號碼已參加抽獎，無法重複領取');
+                                // 舊客判斷採用精確查詢歷史活動，不載入所有紀錄。
+                                const previousIds=campaigns.filter(c=>c.id!==recordData.campaignId).map(c=>c.id);
+                                const oldSnapshots=[];
+                                for (const id of previousIds) oldSnapshots.push(await transaction.get(doc(recordsRef,recordDocId(id,recordData.phone))));
+                                recordData.isOldCustomer=oldSnapshots.some(s=>s.exists());
                                 transaction.set(recordRef, recordData);
                             });
                         } catch(e) {
@@ -1003,6 +1174,8 @@ function getRandomWinningPrize() {
         };
 
         window.showResultModal = function(region, plannerName, name, phone, prizeName, timeStr) {
+            document.getElementById('modalCampaignName').innerText = getCampaignName(currentVerifiedUser?.campaignId || selectedCampaignId);
+            document.getElementById('expCampaignName').innerText = getCampaignName(currentVerifiedUser?.campaignId || selectedCampaignId);
             document.getElementById('modalCustRegion').innerText = region;
             document.getElementById('modalPlannerName').innerText = plannerName;
             document.getElementById('modalCustName').innerText = name;
@@ -1080,67 +1253,29 @@ function getRandomWinningPrize() {
         }
 
         window.performLookup = async function() {
-            const phone = document.getElementById('lookupPhoneInput').value.trim();
-            const container = document.getElementById('lookupResultContainer');
-
-            if (!phone) {
-                showCustomModal("請輸入要查詢的手機號碼", "提示", "warning");
-                return;
-            }
-
+            const phone=document.getElementById('lookupPhoneInput').value.trim();
+            const container=document.getElementById('lookupResultContainer');
+            if (!isPhone(phone)) {showCustomModal('請輸入有效的 10 位台灣手機號碼','手機格式錯誤','warning');return;}
             if (!requireCloud()) return;
-            let found = null;
             try {
-                const result = await getDocFromServer(doc(recordsRef, phone));
-                found = result.exists() ? result.data() : null;
-            } catch (err) {
-                console.error('查詢折扣券失敗:', err);
-                showCloudError('折扣券查詢失敗', err);
-                return;
-            }
-            container.classList.remove('hidden');
-
-            if (found) {
-                let badgeText = '微笑城堡專屬折扣券';
-                if (found.prizeName === '9折') badgeText = '✨ 超級大獎 ✨';
-                else if (found.prizeName === '1000元') badgeText = '✨ 頭獎 ✨';
-
-                container.innerHTML = `
-                    <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 sm:p-5 space-y-3 shadow-md text-xs sm:text-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-castle-redDark uppercase tracking-wider flex items-center space-x-1.5">
-                                <i class="fa-solid fa-circle-check text-emerald-700"></i>
-                                <span>查詢成功・找到中獎優惠券紀錄</span>
-                            </span>
-                            <span class="text-stone-600 font-mono text-[11px]">${found.timestamp}</span>
-                        </div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-amber-200 font-bold">
-                            <div><span class="text-stone-500 text-[10px] block">分店</span><strong class="text-castle-redDark">${found.region || '未指定'}</strong></div>
-                            <div><span class="text-stone-500 text-[10px] block">規劃師</span><strong class="text-castle-redDark">${found.plannerName || '--'}</strong></div>
-                            <div><span class="text-stone-500 text-[10px] block">客戶</span><strong class="text-castle-redDark">${found.name}</strong></div>
-                            <div><span class="text-stone-500 text-[10px] block">電話</span><strong class="text-castle-redDark font-mono">${found.phone}</strong></div>
-                        </div>
-                        <div class="pt-2 text-center">
-                            <div class="coupon-badge rounded-2xl p-4 border-2 border-dashed border-amber-500 shadow-sm space-y-1 inline-block w-full max-w-xs">
-                                <span class="inline-block px-3 py-0.5 rounded-full bg-castle-red text-white text-[10px] font-black tracking-widest uppercase shadow-sm">${badgeText}</span>
-                                <div class="text-3xl font-serif font-black text-castle-red pt-1">${found.prizeName}</div>
-                                <p class="text-[10px] text-stone-600 font-bold">憑此電子票面截圖於下訂時立即抵扣</p>
-                            </div>
-                        </div>
-                        <div class="text-xs text-stone-700 pt-1 flex items-center justify-between font-bold">
-                            <span>審核狀態：<span class="text-emerald-700">${displayAuditStatus(found.status)}</span></span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = `
-                    <div class="bg-red-50 border border-red-200 rounded-2xl p-5 text-center space-y-2 shadow-sm">
-                        <i class="fa-solid fa-triangle-exclamation text-red-600 text-2xl"></i>
-                        <h4 class="font-bold text-red-900 text-base">查無此手機號碼紀錄</h4>
-                        <p class="text-xs text-red-700 font-bold">系統中沒有找到手機號碼 <strong>${phone}</strong> 的抽獎紀錄。</p>
-                    </div>
-                `;
-            }
+                // 每期各一次精確文件讀取，絕不查詢整個抽獎集合。
+                const results=[];
+                for(const c of campaigns) {
+                    const snap=await getDocFromServer(doc(recordsRef,recordDocId(c.id,phone)));
+                    if(snap.exists()) results.push({...snap.data(),campaignId:c.id,campaignName:c.name});
+                }
+                results.sort((a,b)=>(b.createdAtMs||0)-(a.createdAtMs||0));
+                container.classList.remove('hidden');
+                if(!results.length){container.innerHTML='<div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center text-sm font-bold">查無這支手機的歷史抽獎紀錄</div>';return;}
+                container.innerHTML=results.map(r=>`<div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-3 space-y-2 text-xs sm:text-sm">
+                    <div class="font-black text-castle-redDark">${escapeTableText(r.campaignName||getCampaignName(campaignOf(r)))}</div>
+                    <div>時間：${escapeTableText(r.timestamp||'--')}</div>
+                    <div>分店：${escapeTableText(r.region||'--')} ｜ 規劃師：${escapeTableText(r.plannerName||'--')}</div>
+                    <div>客戶：${escapeTableText(r.name||'--')} ｜ 電話：${escapeTableText(r.phone||'--')}</div>
+                    <div class="coupon-badge border-2 border-dashed border-amber-400 rounded-xl p-4 text-center"><div class="text-3xl font-black text-castle-red">${escapeTableText(r.prizeName||'--')}</div><div class="text-xs">原始優惠券紀錄，是否仍可使用請依活動條款及審核狀態確認</div></div>
+                    <div>審核狀態：${escapeTableText(displayAuditStatus(r.status))}</div>
+                </div>`).join('');
+            }catch(e){showCloudError('歷史優惠券查詢失敗',e);}
         };
 
         let isAdminLoggedIn = false;
@@ -1183,6 +1318,7 @@ function getRandomWinningPrize() {
             document.getElementById('adminActionError').classList.add('hidden');
             const descEl = document.getElementById('adminActionDesc');
             if (type === 'resetAll') {
+                showCustomModal('已停用清空所有歷史資料的功能。','已停用','warning');return;
                 descEl.innerText = "⚠️ 警告 : 您即將將「所有抽獎紀錄全部歸零」，此操作無法復原！請輸入管理員密碼以確認：";
             } else if (type === 'delete') {
                 descEl.innerText = `確定要刪除手機號碼為 ${phone} 的抽獎紀錄嗎？請輸入管理員密碼以確認：`;
@@ -1268,6 +1404,7 @@ function getRandomWinningPrize() {
             const phone = field('filterPhone');
             const prize = field('filterPrize');
             const status = field('filterStatus');
+            const oldTag = field('filterOld');
             const records = allRecords.filter(r =>
                 String(r.timestamp || '').toLowerCase().includes(timestamp) &&
                 (!region || String(r.region || '未指定').toLowerCase() === region) &&
@@ -1275,17 +1412,18 @@ function getRandomWinningPrize() {
                 String(r.name || '').toLowerCase().includes(customer) &&
                 String(r.phone || '').toLowerCase().includes(phone) &&
                 (!prize || String(r.prizeName || '').toLowerCase() === prize) &&
-                (!status || displayAuditStatus(r.status).toLowerCase() === status)
+                (!status || displayAuditStatus(r.status).toLowerCase() === status) &&
+                (!oldTag || (oldTag==='old' ? !!r.isOldCustomer : !r.isOldCustomer))
             );
             document.getElementById('adminFilterCount').textContent = adminHistoricalMode
                 ? `歷史紀錄：顯示 ${records.length} / ${allRecords.length} 筆（已載入全部）`
-                : `本頁顯示 ${records.length} / ${allRecords.length} 筆（第 ${adminPageNumber} 頁；篩選限本頁）`;
+                : `本頁顯示 ${records.length} / ${allRecords.length} 筆（第 ${adminPageNumber} 頁；姓名／規劃師等僅篩選本頁）`;
             return records;
         }
 
         window.filterAdminTable = function() { renderAdminTable(); };
         window.clearAdminFilters = function() {
-            ['filterTimestamp','filterRegion','filterPlanner','filterCustomer','filterPhone','filterPrize','filterStatus']
+            ['filterTimestamp','filterRegion','filterPlanner','filterCustomer','filterPhone','filterPrize','filterStatus','filterOld']
                 .forEach(id => { document.getElementById(id).value = ''; });
             renderAdminTable();
         };
@@ -1294,11 +1432,13 @@ function getRandomWinningPrize() {
             const records = applyAdminFilters();
             const tbody = document.getElementById('adminTableBody');
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-10 text-center text-stone-500 font-bold text-sm">${allRecords.length ? '沒有符合篩選條件的紀錄' : '本頁尚未載入紀錄；如 Firebase 中有舊資料，請按上方「載入全部歷史紀錄」'}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="py-10 text-center text-stone-500 font-bold text-sm">${allRecords.length ? '沒有符合篩選條件的紀錄' : '本頁尚未載入紀錄；如 Firebase 中有舊資料，請按上方「載入全部歷史紀錄」'}</td></tr>`;
                 return;
             }
             tbody.innerHTML = records.map(r => `
                 <tr class="hover:bg-amber-50/50 transition-all">
+                    <td class="py-3.5 px-4 text-xs font-bold text-castle-redDark">${escapeTableText(r.campaignName||getCampaignName(campaignOf(r)))}</td>
+                    <td class="py-3.5 px-4">${r.isOldCustomer ? '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-bold">舊客</span>' : '—'}</td>
                     <td class="py-3.5 px-4 text-xs font-mono text-stone-600 font-bold">${escapeTableText(r.timestamp || '--')}</td>
                     <td class="py-3.5 px-4 font-bold text-stone-800 text-xs"><span class="px-2 py-1 rounded bg-amber-100 text-castle-redDark border border-amber-300">${escapeTableText(r.region || '未指定')}</span></td>
                     <td class="py-3.5 px-4 font-bold text-stone-900">${escapeTableText(r.plannerName || '--')}</td>
@@ -1307,8 +1447,8 @@ function getRandomWinningPrize() {
                     <td class="py-3.5 px-4 font-serif font-black text-castle-red text-base">${escapeTableText(r.prizeName || '--')}</td>
                     <td class="py-3.5 px-4"><span class="px-3 py-1 rounded-full text-[11px] font-black ${displayAuditStatus(r.status) === '已作廢' ? 'bg-red-100 text-red-800 border border-red-300' : displayAuditStatus(r.status) === '已稽核' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">${escapeTableText(displayAuditStatus(r.status))}</span></td>
                     <td class="py-3.5 px-4 text-center space-x-1.5 whitespace-nowrap">
-                        <button type="button" data-phone="${escapeTableText(r.phone || '')}" data-action="status" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-castle-redDark rounded-lg text-xs font-bold transition-all border border-amber-300 cursor-pointer shadow-sm">狀態</button>
-                        <button type="button" data-phone="${escapeTableText(r.phone || '')}" data-action="delete" class="px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition-all border border-red-300 cursor-pointer shadow-sm">刪除</button>
+                        <button type="button" data-docid="${escapeTableText(r.id || '')}" data-action="status" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-castle-redDark rounded-lg text-xs font-bold transition-all border border-amber-300 cursor-pointer shadow-sm">狀態</button>
+                        <button type="button" data-docid="${escapeTableText(r.id || '')}" data-action="delete" class="px-2.5 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg text-xs font-bold transition-all border border-red-300 cursor-pointer shadow-sm">刪除</button>
                     </td>
                 </tr>`).join('');
         }
@@ -1321,8 +1461,8 @@ function getRandomWinningPrize() {
             const button = event.target.closest('button[data-action]');
             if (!button) return;
             playClickSound();
-            if (button.dataset.action === 'status') toggleRecordStatus(button.dataset.phone);
-            if (button.dataset.action === 'delete') requestAdminAction('delete', button.dataset.phone);
+            if (button.dataset.action === 'status') toggleRecordStatus(button.dataset.docid);
+            if (button.dataset.action === 'delete') requestAdminAction('delete', button.dataset.docid);
         });
 
         function updateStatsAndTable() {
@@ -1343,7 +1483,7 @@ function getRandomWinningPrize() {
 
         window.toggleRecordStatus = async function(phone) {
             if (!requireCloud()) return;
-            const record = allRecords.find(r => r.phone === phone);
+            const record = allRecords.find(r => r.id === phone);
             if (!record) return;
             const currentStatus = displayAuditStatus(record.status);
             if (currentStatus === '已作廢') {
@@ -1362,34 +1502,21 @@ function getRandomWinningPrize() {
         };
 
         window.exportDataCSV = async function() {
-            let csv = '\uFEFF抽獎時間,服務分店,規劃師姓名,客戶姓名,手機號碼,中獎票券,審核狀態\n';
-            if (!isAdminLoggedIn || !requireCloud()) return;
-            try {
-                // 使用者主動匯出時才逐批讀取全部紀錄，不影響前台流量。
-                let cursor = null;
-                while (true) {
-                    const q = cursor
-                        ? query(recordsRef, orderBy(documentId()), startAfter(cursor), limit(400))
-                        : query(recordsRef, orderBy(documentId()), limit(400));
-                    const page = await getDocsFromServer(q);
-                    page.docs.forEach(d => {
-                        const r = d.data();
-                        const escapeCsv = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
-                        csv += [r.timestamp, r.region || '未指定', r.plannerName || '--', r.name, r.phone, r.prizeName, displayAuditStatus(r.status)].map(escapeCsv).join(',') + '\n';
-                    });
-                    if (page.size < 400) break;
-                    cursor = page.docs[page.docs.length - 1];
-                }
-            } catch (err) {
-                showCloudError('CSV 匯出失敗', err);
-                return;
-            }
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `微笑城堡窗簾九宮格報表_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
+            if(!isAdminLoggedIn||!requireCloud())return;
+            let csv='\uFEFF活動代碼,活動名稱,客戶標記,抽獎時間,服務分店,規劃師,客戶姓名,手機號碼,獎項,審核狀態\n';
+            const ids=adminCampaignId==='all'?campaigns.map(c=>c.id):[adminCampaignId];
+            const esc=x=>'"'+String(x??'').replaceAll('"','""')+'"';
+            try{
+                for(const id of ids){let cursor=null;while(true){
+                    const page=await getDocsFromServer(campaignQuery(id,300,cursor));
+                    page.docs.filter(isRecordDoc).forEach(d=>{const r=d.data();csv+=[id,getCampaignName(id),r.isOldCustomer?'舊客':'',r.timestamp,r.region,r.plannerName,r.name,r.phone,r.prizeName,displayAuditStatus(r.status)].map(esc).join(',')+'\n';});
+                    if(page.size<300)break;
+                    cursor=page.docs.at(-1);
+                }}
+            }catch(e){showCloudError('CSV 匯出失敗',e);return;}
+            const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+            const a=document.createElement('a');a.href=url;a.download='微笑城堡九宮格_'+adminCampaignId+'_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+            setTimeout(()=>URL.revokeObjectURL(url),1000);
         };
 
         function showCloudError(title, err) {
@@ -1417,9 +1544,7 @@ function getRandomWinningPrize() {
             try {
                 const cursor = reset ? null : adminLastVisible;
                 // 不要求舊資料具有 createdAtMs 等欄位，依 Firestore 文件 ID 分頁。
-                const q = cursor
-                    ? query(recordsRef, orderBy(documentId()), startAfter(cursor), limit(ADMIN_PAGE_SIZE))
-                    : query(recordsRef, orderBy(documentId()), limit(ADMIN_PAGE_SIZE));
+                const q=campaignQuery(adminCampaignId,ADMIN_PAGE_SIZE,cursor);
                 let snapshot;
                 try {
                     snapshot = await getDocsFromServer(q);
@@ -1427,9 +1552,9 @@ function getRandomWinningPrize() {
                     // 對部分舊資料庫規則/索引設定，嘗試不指定排序的原生集合查詢。
                     if (cursor) throw primaryError;
                     console.warn('文件 ID 排序查詢失敗，改以原生集合查詢：', primaryError);
-                    snapshot = await getDocsFromServer(query(recordsRef, limit(ADMIN_PAGE_SIZE)));
+                    snapshot = await getDocsFromServer(campaignQuery(adminCampaignId,ADMIN_PAGE_SIZE));
                 }
-                const loaded = snapshot.docs.map(d => ({ ...d.data(), id: d.id, phone: d.data().phone || d.id }));
+                const loaded = snapshot.docs.filter(isRecordDoc).map(d => ({ ...d.data(), id: d.id, phone: d.data().phone || d.id, campaignId: d.data().campaignId || LEGACY_ID }));
                 adminHistoricalMode = false;
                 allRecords = loaded;
                 adminLastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
@@ -1440,7 +1565,7 @@ function getRandomWinningPrize() {
                 if (info) info.textContent = snapshot.empty
                     ? '這個資料集合目前查無文件；請確認 Firebase 控制台的資料路徑，或點「載入全部歷史紀錄」再次查詢。'
                     : `成功載入 ${snapshot.size} 筆｜第 ${adminPageNumber} 頁｜如需查看舊紀錄可點「載入全部歷史紀錄」`;
-                if (reset) await refreshAdminCounts();
+                if (reset) await refreshAdminCounts(false);
             } catch (err) {
                 if (info) info.textContent = `後台讀取失敗：${err.code || 'unknown'} — ${err.message || err}。資料未刪除。`;
                 showCloudError('後台讀取失敗', err);
@@ -1462,8 +1587,8 @@ function getRandomWinningPrize() {
             if (info) info.textContent = '正在載入完整歷史紀錄，請勿重複點選…';
             if (nextButton) nextButton.disabled = true;
             try {
-                const snapshot = await getDocsFromServer(recordsRef);
-                const records = snapshot.docs.map(d => ({ ...d.data(), id: d.id, phone: d.data().phone || d.id }));
+                const snapshot = await getDocsFromServer(adminCampaignId==='all' ? recordsRef : campaignQuery(adminCampaignId,5000));
+                const records = snapshot.docs.filter(isRecordDoc).map(d => ({ ...d.data(), id: d.id, phone: d.data().phone || d.id, campaignId: d.data().campaignId || LEGACY_ID }));
                 records.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0)
                     || String(b.timestamp || '').localeCompare(String(a.timestamp || '')));
                 allRecords = records;
@@ -1489,33 +1614,69 @@ function getRandomWinningPrize() {
             }
         };
 
-        async function refreshAdminCounts() {
-            if (!isAdminLoggedIn || !requireCloud()) return;
-            try {
-                const prizeNames = ['9折', '1000元', '800元', '600元', '500元'];
-                // 每個 count 查詢由伺服器計算，無須下載全表文件。
-                const [totalSnapshot, auditedSnapshot, cashSnapshot, ...prizeSnapshots] = await Promise.all([
-                    getCountFromServer(recordsRef),
-                    getCountFromServer(query(recordsRef, where('status', '==', '已稽核'))),
-                    getCountFromServer(query(recordsRef, where('prizeType', '==', 'cash'))),
-                    ...prizeNames.map(name => getCountFromServer(query(recordsRef, where('prizeName', '==', name))))
-                ]);
-                const total = totalSnapshot.data().count;
-                const counts = prizeNames.map((name, i) => [name, prizeSnapshots[i].data().count]);
-                document.getElementById('statTotalCount').textContent = total;
-                document.getElementById('stat9折Count').textContent = counts[0][1];
-                document.getElementById('statCashCount').textContent = cashSnapshot.data().count;
-                document.getElementById('statApprovedCount').textContent = auditedSnapshot.data().count;
-                document.getElementById('breakdownStatsGrid').innerHTML = counts.map(([name, count]) => {
-                    const percentage = total ? ((count / total) * 100).toFixed(1) : '0.0';
-                    return `<div class="bg-amber-50/80 rounded-2xl p-3.5 sm:p-4 border border-amber-300 text-center space-y-1.5 shadow-sm"><span class="text-xs font-bold text-castle-redDark block">${name}</span><div class="text-xl sm:text-2xl font-black text-castle-redDark">${count} 位</div><div class="text-[10px] text-stone-700">佔比 ${percentage}%</div></div>`;
-                }).join('');
-            } catch (err) {
-                console.error('全域統計讀取失敗', err);
-                document.getElementById('breakdownStatsGrid').textContent = `全域統計讀取失敗：${err.code || err.message}`;
+        async function getCountFor(id, extraWhere=null) {
+            const base= id==='all' ? [] : id===LEGACY_ID
+                ? [orderBy(documentId()),startAt('0'),endAt('9\uf8ff')]
+                : [where('campaignId','==',id)];
+            if(extraWhere) {
+                // Legacy 使用 documentId 範圍；複合過濾可能需 Firestore 索引。
+                if(id===LEGACY_ID) return null;
+                base.push(extraWhere);
             }
+            return (await getCountFromServer(query(recordsRef,...base))).data().count;
         }
-        window.refreshAdminCounts = refreshAdminCounts;
+        async function refreshAdminCounts(force=false) {
+            if (!isAdminLoggedIn || !requireCloud()) return;
+            const note=document.getElementById('statScopeNote');
+            if(note) note.textContent='正在統計「'+(adminCampaignId==='all'?'全部活動':getCampaignName(adminCampaignId))+'」…';
+            try {
+                const ids=adminCampaignId==='all'?campaigns.map(c=>c.id):[adminCampaignId];
+                const amounts=await Promise.all(ids.map(id=>getCountFor(id)));
+                const total=amounts.reduce((a,b)=>a+(b||0),0);
+                document.getElementById('statTotalCount').textContent=total;
+                document.getElementById('stat9折Count').textContent='—';
+                document.getElementById('statCashCount').textContent='—';
+                document.getElementById('statApprovedCount').textContent='—';
+                document.getElementById('statOldCount').textContent='—';
+                const summary=document.getElementById('campaignCountSummary');
+                summary.innerHTML=ids.map((id,i)=>`<div class="bg-amber-50 rounded-xl p-3 border border-amber-200"><div class="font-bold text-castle-redDark">${escapeTableText(getCampaignName(id))}</div><div class="text-xl font-black">${amounts[i]} 筆</div><button data-id="${id}" class="text-xs underline text-castle-red">查看這一期</button></div>`).join('');
+                summary.querySelectorAll('button[data-id]').forEach(btn=>btn.onclick=()=>{document.getElementById('adminCampaignFilter').value=btn.dataset.id;changeAdminCampaignFilter();});
+                if(note) note.textContent=`已完成 ${total} 筆統計；完整獎項與稽核分布請點「計算本活動完整獎項」。統計採聚合查詢，不會載入全部客戶資料。`;
+                if(force) await refreshPrizeCounts();
+            }catch(e){if(note)note.textContent='統計失敗：'+(e.code||e.message);showCloudError('活動數量統計失敗',e);}
+        }
+        window.refreshAdminCounts=refreshAdminCounts;
+        window.refreshPrizeCounts=async function() {
+            if(!isAdminLoggedIn||!requireCloud())return;
+            const names=['9折','1000元','800元','600元','500元'];
+            const ids=adminCampaignId==='all'?campaigns.map(c=>c.id):[adminCampaignId];
+            const countWithPredicate=async (id,field,value)=>{
+                if(id===LEGACY_ID){
+                    // 舊資料缺少 campaignId；使用手機文件 ID 區間搭配條件查詢。
+                    return (await getCountFromServer(query(recordsRef,where(field,'==',value),orderBy(documentId()),startAt('0'),endAt('9\uf8ff')))).data().count;
+                }
+                return (await getCountFromServer(query(recordsRef,where('campaignId','==',id),where(field,'==',value)))).data().count;
+            };
+            const note=document.getElementById('statScopeNote');
+            if(note) note.textContent='正在計算完整獎項（此操作可能需要額外索引與 Firestore 聚合查詢）…';
+            try {
+                // 控制同時查詢數量，避免大量並行 request。
+                let totals=[];
+                for(const name of names){let sum=0;for(const id of ids)sum+=await countWithPredicate(id,'prizeName',name);totals.push(sum);}
+                const total=totals.reduce((a,b)=>a+b,0);
+                document.getElementById('stat9折Count').textContent=totals[0];
+                document.getElementById('statCashCount').textContent=total-totals[0];
+                document.getElementById('breakdownStatsGrid').innerHTML=names.map((n,i)=>`<div class="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-center"><div class="text-xs font-bold">${n}</div><div class="text-xl font-black text-castle-red">${totals[i]} 位</div><div class="text-xs">${total ? (100*totals[i]/total).toFixed(1):'0.0'}%</div></div>`).join('');
+                let audited=0,old=0;
+                for(const id of ids) {
+                    audited+=await countWithPredicate(id,'status','已稽核');
+                    if(id!==LEGACY_ID) old+=await countWithPredicate(id,'isOldCustomer',true);
+                }
+                document.getElementById('statApprovedCount').textContent=audited;
+                document.getElementById('statOldCount').textContent=old;
+                if(note)note.textContent='已完成此活動的全量獎項、稽核與舊客統計（非單頁估算）。';
+            }catch(e){if(note)note.textContent='完整分布無法取得；可能需要建立 Firestore 複合索引：'+(e.code||e.message);showCloudError('詳細統計失敗',e);}
+        };
 
         window.runCloudDiagnostic = async function() {
             if (!auth || !db || !recordsRef) {
