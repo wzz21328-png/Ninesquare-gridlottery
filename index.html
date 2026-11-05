@@ -176,6 +176,10 @@
                 
                 <!-- Registration Form -->
                 <div class="lg:col-span-5 luxury-card rounded-3xl p-4 sm:p-6 md:p-7 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between gap-2 bg-amber-50 rounded-xl border border-amber-200 p-2.5">
+                        <span id="customerCloudStatus" class="text-xs font-bold text-amber-800">● 雲端連線檢查中</span>
+                        <button type="button" onclick="runCloudDiagnostic()" class="text-xs font-bold text-castle-redDark underline shrink-0">測試連線</button>
+                    </div>
                     <div class="border-b border-amber-200 pb-3 flex items-center justify-between">
                         <h3 class="font-serif font-bold text-sm sm:text-base text-castle-redDark flex items-center space-x-2">
                             <i class="fa-solid fa-user-pen text-castle-red"></i>
@@ -381,6 +385,8 @@
                     <p class="text-xs sm:text-sm text-stone-600 font-bold mt-1">即時檢視各地區抽獎明細、個別獎項中獎數量與佔比統計、審核狀態與報表匯出。</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="runCloudDiagnostic()" class="px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold">雲端診斷</button>
+                    <button onclick="loadAdminPage(true)" class="px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold">重新整理</button>
                     <button onclick="playClickSound(); exportDataCSV()" class="px-3.5 py-2.5 bg-amber-100 hover:bg-amber-200 text-castle-redDark font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 border border-amber-300 shadow-sm cursor-pointer">
                         <i class="fa-solid fa-file-excel"></i>
                         <span>匯出 CSV</span>
@@ -461,6 +467,10 @@
                     </div>
                 </div>
 
+                <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-xs text-stone-700 bg-amber-50">
+                    <span id="adminPageInfo">後台只載入每頁 50 筆；篩選只針對目前頁面</span>
+                    <button id="adminNextPageBtn" type="button" onclick="loadAdminPage(false)" disabled class="px-3 py-2 rounded-lg bg-castle-red text-white font-bold disabled:opacity-40">下一頁（最多 50 筆）</button>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[780px]">
                         <thead>
@@ -639,7 +649,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, runTransaction, writeBatch, updateDoc, deleteDoc, getDocFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, runTransaction, writeBatch, updateDoc, deleteDoc, getDocFromServer, getDocsFromServer, query, orderBy, documentId, startAfter, limit, getCountFromServer, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let app, db, auth;
         let allRecords = [];
@@ -649,11 +659,23 @@
         let cloudReady = false;
         let cloudError = '';
         let recordsRef = null;
+        const ADMIN_PAGE_SIZE = 50;
+        let adminLastVisible = null;
+        let adminHasMore = false;
+        let adminPageNumber = 0;
+        let adminBusy = false;
+        let diagnosticResult = '';
+        const FIREBASE_PROJECT_ID = 'ninesquare-c5d6f';
         const recordsCollectionPath = ['artifacts', 'ninesquare-c5d6f', 'public', 'data', 'castle_draw_records_v12'];
 
         function setCloudStatus(ok, message) {
             cloudReady = ok;
             cloudError = ok ? '' : message;
+            const customerStatus = document.getElementById('customerCloudStatus');
+            if (customerStatus) {
+                customerStatus.textContent = ok ? '● 雲端連線正常，可進行驗證與抽獎' : '● 雲端未連線：' + message;
+                customerStatus.className = ok ? 'text-xs font-bold text-emerald-700' : 'text-xs font-bold text-red-700';
+            }
             const el = document.getElementById('cloudSyncStatus');
             if (el) {
                 el.textContent = ok ? '● 雲端同步已連線' : '● 雲端未連線：' + message;
@@ -797,23 +819,14 @@ function getRandomWinningPrize() {
                     await signInAnonymously(auth);
                 }
                 recordsRef = collection(db, ...recordsCollectionPath);
-                onSnapshot(recordsRef, { includeMetadataChanges: true }, (snapshot) => {
-                    // 僅把伺服器確認的資料當作最新共用紀錄。
-                    if (snapshot.metadata.fromCache) {
-                        setCloudStatus(false, '目前只有快取資料，無法確認同步');
-                        return;
-                    }
-                    allRecords = snapshot.docs.map(item => ({ ...item.data(), id: item.id }));
-                    allRecords.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
-                    updateStatsAndTable();
-                    setCloudStatus(true, '');
-                }, (err) => {
-                    console.error('Firestore 即時同步失敗:', err);
-                    setCloudStatus(false, err.code || err.message || '未知錯誤');
-                });
+                // 啟動時只讀取一個不存在的診斷文件，不再訂閱全體中獎資料。
+                // 伺服器回應「文件不存在」仍代表資料庫可讀取。
+                await getDocFromServer(doc(recordsRef, '__connection_check__'));
+                setCloudStatus(true, '');
             } catch (err) {
                 console.error('Firebase 初始化或登入失敗:', err);
                 setCloudStatus(false, err.code || err.message || '未知錯誤');
+                diagnosticResult = `${err.code || 'unknown'}: ${err.message || err}`;
             }
         }
 
@@ -833,10 +846,11 @@ function getRandomWinningPrize() {
                 document.getElementById('navLookupBtn').className = "px-2.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-gradient-to-r from-castle-red to-castle-redLight text-white shadow-md flex items-center space-x-1.5 border border-amber-400 cursor-pointer";
             } else if (viewName === 'admin') {
                 document.getElementById('adminView').classList.remove('hidden');
+                if (isAdminLoggedIn && adminPageNumber === 0 && !adminBusy) loadAdminPage(true);
             }
         };
 
-        window.handleRegistration = function(e) {
+        window.handleRegistration = async function(e) {
             e.preventDefault();
             if (!requireCloud()) return;
             const region = document.getElementById('custRegion').value;
@@ -850,7 +864,19 @@ function getRandomWinningPrize() {
                 return;
             }
 
-            const existing = allRecords.find(r => r.phone === phone);
+            const registerBtn = document.getElementById('registerBtn');
+            registerBtn.disabled = true;
+            let existing = null;
+            try {
+                const existingSnap = await getDocFromServer(doc(recordsRef, phone));
+                existing = existingSnap.exists() ? existingSnap.data() : null;
+            } catch (err) {
+                console.error('驗證電話時雲端查詢失敗:', err);
+                showCloudError('電話驗證失敗', err);
+                return;
+            } finally {
+                registerBtn.disabled = !cloudReady;
+            }
             if (existing) {
                 feedbackEl.className = "p-3 rounded-2xl text-xs sm:text-sm font-bold bg-red-100 text-red-900 border border-red-300 flex items-start space-x-2 shadow-sm";
                 feedbackEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-700 text-lg mt-0.5 shrink-0"></i><div><strong>已抽獎，不可重複抽獎！</strong><br><span class="text-[11px] font-normal text-red-800">分店：${existing.region} | 規劃師：${existing.plannerName || '--'} | 時間：${existing.timestamp} | 獎項：<strong>${existing.prizeName}</strong></span></div>`;
@@ -952,7 +978,7 @@ function getRandomWinningPrize() {
                         } catch(e) {
                             console.error('雲端儲存抽獎結果失敗:', e);
                             hasSpun = false;
-                            showCustomModal('中獎結果尚未成功儲存至雲端，這次不發券。請確認連線後重新查詢或操作。\n' + (e.message || ''), '儲存失敗', 'warning');
+                            showCloudError('儲存失敗：這次不發券，請先查詢是否已有紀錄', e);
                             resetSession();
                             return;
                         }
@@ -1052,7 +1078,7 @@ function getRandomWinningPrize() {
             showCustomModal("截圖檔案已自動下載！手機版亦可直接手動截圖。", "存入相簿成功", "success");
         }
 
-        window.performLookup = function() {
+        window.performLookup = async function() {
             const phone = document.getElementById('lookupPhoneInput').value.trim();
             const container = document.getElementById('lookupResultContainer');
 
@@ -1061,7 +1087,16 @@ function getRandomWinningPrize() {
                 return;
             }
 
-            const found = allRecords.find(r => r.phone === phone);
+            if (!requireCloud()) return;
+            let found = null;
+            try {
+                const result = await getDocFromServer(doc(recordsRef, phone));
+                found = result.exists() ? result.data() : null;
+            } catch (err) {
+                console.error('查詢折扣券失敗:', err);
+                showCloudError('折扣券查詢失敗', err);
+                return;
+            }
             container.classList.remove('hidden');
 
             if (found) {
@@ -1175,15 +1210,21 @@ function getRandomWinningPrize() {
             if (action.type === 'resetAll') {
                 try {
                     // 從共用雲端資料庫逐批刪除，不能先把清單設成空陣列。
-                    const { getDocs } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-                    const snapshot = await getDocs(recordsRef);
-                    const docs = snapshot.docs;
-                    for (let i = 0; i < docs.length; i += 400) {
+                    // 危險操作只在管理員明確確認後執行，逐頁讀取以控制記憶體。
+                    // 注意：前端密碼不能形成真正的 Firestore 權限防護；須配置安全後端。
+                    let removed = 0;
+                    while (true) {
+                        const snapshot = await getDocsFromServer(query(recordsRef, orderBy(documentId()), limit(400)));
+                        if (snapshot.empty) break;
                         const batch = writeBatch(db);
-                        docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+                        snapshot.docs.forEach(d => batch.delete(d.ref));
                         await batch.commit();
+                        removed += snapshot.size;
                     }
-                    showCustomModal('雲端抽獎紀錄已全部歸零，其他裝置會同步更新。', '歸零完成', 'success');
+                    allRecords = [];
+                    adminPageNumber = 0;
+                    await loadAdminPage(true);
+                    showCustomModal(`已刪除 ${removed} 筆雲端紀錄。`, '歸零完成', 'success');
                 } catch(e) {
                     console.error('歸零失敗:', e);
                     showCustomModal('雲端歸零失敗或未完全完成：' + e.message, '操作失敗', 'warning');
@@ -1191,6 +1232,7 @@ function getRandomWinningPrize() {
             } else if (action.type === 'delete' && action.phone) {
                 try {
                     await deleteDoc(doc(recordsRef, action.phone));
+                    await loadAdminPage(true);
                     showCustomModal('已成功刪除雲端紀錄', '刪除成功', 'success');
                 } catch(e) {
                     console.error('刪除失敗:', e);
@@ -1234,7 +1276,7 @@ function getRandomWinningPrize() {
                 (!prize || String(r.prizeName || '').toLowerCase() === prize) &&
                 (!status || displayAuditStatus(r.status).toLowerCase() === status)
             );
-            document.getElementById('adminFilterCount').textContent = `顯示 ${records.length} / ${allRecords.length} 筆`;
+            document.getElementById('adminFilterCount').textContent = `本頁顯示 ${records.length} / ${allRecords.length} 筆（第 ${adminPageNumber} 頁；篩選限本頁）`;
             return records;
         }
 
@@ -1281,36 +1323,15 @@ function getRandomWinningPrize() {
         });
 
         function updateStatsAndTable() {
+            // 表格僅統計目前已載入頁次；全域統計由 getCountFromServer() 提供。
             const total = allRecords.length;
             const count9zhes = allRecords.filter(r => r.prizeName === '9折').length;
             const countCash = allRecords.filter(r => r.prizeType === 'cash').length;
             const countApproved = allRecords.filter(r => displayAuditStatus(r.status) === '已稽核').length;
 
-            document.getElementById('statTotalCount').innerText = total;
-            document.getElementById('stat9折Count').innerText = count9zhes;
-            document.getElementById('statCashCount').innerText = countCash;
-            document.getElementById('statApprovedCount').innerText = countApproved;
+            // 數字由 refreshAdminCounts 更新；不以分頁資料冒充全域統計。
 
-            const prizeCounts = {
-                '9折': allRecords.filter(r => r.prizeName === '9折').length,
-                '1000元': allRecords.filter(r => r.prizeName === '1000元').length,
-                '800元': allRecords.filter(r => r.prizeName === '800元').length,
-                '600元': allRecords.filter(r => r.prizeName === '600元').length,
-                '500元': allRecords.filter(r => r.prizeName === '500元').length,
-            };
-
-            const breakdownGrid = document.getElementById('breakdownStatsGrid');
-            breakdownGrid.innerHTML = Object.entries(prizeCounts).map(([name, count]) => {
-                const percentage = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
-                return `
-                    <div class="bg-amber-50/80 rounded-2xl p-3.5 sm:p-4 border border-amber-300 text-center space-y-1.5 shadow-sm">
-                        <span class="text-xs font-bold text-castle-redDark block truncate">${name}</span>
-                        <div class="text-xl sm:text-2xl font-black text-castle-redDark font-serif">${count} <span class="text-xs font-sans text-stone-600 font-bold">位</span></div>
-                        <div class="text-[10px] text-stone-700 font-bold bg-white px-2.5 py-0.5 rounded-full inline-block border border-amber-300">佔比 ${percentage}%</div>
-                    </div>
-                `;
-            }).join('');
-
+            // 篩選僅在已載入的頁面執行，數量不等於整個資料庫。
             syncFilterOptions('filterRegion', allRecords.map(r => r.region || '未指定'), '全部分店');
             syncFilterOptions('filterPlanner', allRecords.map(r => r.plannerName || '--'), '全部規劃師');
             syncFilterOptions('filterPrize', allRecords.map(r => r.prizeName || ''), '全部獎項');
@@ -1330,23 +1351,133 @@ function getRandomWinningPrize() {
             const nextStatus = currentStatus === '已稽核' ? '已通過審核' : '已稽核';
             try {
                 await updateDoc(doc(recordsRef, phone), { status: nextStatus });
+                await loadAdminPage(true);
             } catch(e) {
                 console.error('更新審核狀態失敗:', e);
                 showCustomModal('審核狀態無法寫入雲端：' + e.message, '操作失敗', 'warning');
             }
         };
 
-        window.exportDataCSV = function() {
+        window.exportDataCSV = async function() {
             let csv = '\uFEFF抽獎時間,服務分店,規劃師姓名,客戶姓名,手機號碼,中獎票券,審核狀態\n';
-            allRecords.forEach(r => {
-                csv += `"${r.timestamp}","${r.region || '未指定'}","${r.plannerName || '--'}","${r.name}","${r.phone}","${r.prizeName}","${displayAuditStatus(r.status)}"\n`;
-            });
+            if (!isAdminLoggedIn || !requireCloud()) return;
+            try {
+                // 使用者主動匯出時才逐批讀取全部紀錄，不影響前台流量。
+                let cursor = null;
+                while (true) {
+                    const q = cursor
+                        ? query(recordsRef, orderBy(documentId()), startAfter(cursor), limit(400))
+                        : query(recordsRef, orderBy(documentId()), limit(400));
+                    const page = await getDocsFromServer(q);
+                    page.docs.forEach(d => {
+                        const r = d.data();
+                        const escapeCsv = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
+                        csv += [r.timestamp, r.region || '未指定', r.plannerName || '--', r.name, r.phone, r.prizeName, displayAuditStatus(r.status)].map(escapeCsv).join(',') + '\n';
+                    });
+                    if (page.size < 400) break;
+                    cursor = page.docs[page.docs.length - 1];
+                }
+            } catch (err) {
+                showCloudError('CSV 匯出失敗', err);
+                return;
+            }
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
             a.download = `微笑城堡窗簾九宮格報表_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
+        };
+
+        function showCloudError(title, err) {
+            const code = err?.code || 'unknown';
+            const detail = err?.message || String(err);
+            diagnosticResult = `${code}: ${detail}`;
+            const help = code.includes('resource-exhausted')
+                ? 'Firebase 回報額度或資源限制。請檢查專案 Blaze 計費狀態、Firestore 配額與用量。'
+                : code.includes('permission-denied')
+                ? 'Firestore 安全規則拒絕請求，請檢查匿名登入與資料存取規則。'
+                : code.includes('unavailable') || code.includes('deadline-exceeded')
+                ? '暫時無法連線，請檢查網路或稍後重新測試。'
+                : '請記下錯誤代碼，以利檢查 Firebase 專案設定。';
+            showCustomModal(`${help}\n錯誤：${diagnosticResult}`, title, 'warning');
+        }
+
+        // 只在後台開啟後才載入一頁資料，無前台全表監聽。
+        async function loadAdminPage(reset = false) {
+            if (!isAdminLoggedIn || !requireCloud() || adminBusy) return;
+            adminBusy = true;
+            const btn = document.getElementById('adminNextPageBtn');
+            if (btn) btn.disabled = true;
+            try {
+                if (reset) {
+                    adminLastVisible = null;
+                    adminPageNumber = 0;
+                    allRecords = [];
+                }
+                const q = adminLastVisible
+                    ? query(recordsRef, orderBy(documentId()), startAfter(adminLastVisible), limit(ADMIN_PAGE_SIZE))
+                    : query(recordsRef, orderBy(documentId()), limit(ADMIN_PAGE_SIZE));
+                const snapshot = await getDocsFromServer(q);
+                allRecords = snapshot.docs.map(d => ({ ...d.data(), id: d.id }));
+                adminLastVisible = snapshot.docs[snapshot.docs.length - 1] || adminLastVisible;
+                adminHasMore = snapshot.size === ADMIN_PAGE_SIZE;
+                adminPageNumber += 1;
+                allRecords.sort((a, b) => (b.createdAtMs || 0) - (a.createdAtMs || 0));
+                updateStatsAndTable();
+                document.getElementById('adminPageInfo').textContent = `第 ${adminPageNumber} 頁，每頁最多 ${ADMIN_PAGE_SIZE} 筆；僅本頁可篩選`;
+                document.getElementById('adminNextPageBtn').disabled = !adminHasMore;
+                if (reset) await refreshAdminCounts();
+            } catch (err) {
+                showCloudError('後台讀取失敗', err);
+            } finally {
+                adminBusy = false;
+                if (btn) btn.disabled = !adminHasMore;
+            }
+        }
+        window.loadAdminPage = loadAdminPage;
+
+        async function refreshAdminCounts() {
+            if (!isAdminLoggedIn || !requireCloud()) return;
+            try {
+                const prizeNames = ['9折', '1000元', '800元', '600元', '500元'];
+                // 每個 count 查詢由伺服器計算，無須下載全表文件。
+                const [totalSnapshot, auditedSnapshot, cashSnapshot, ...prizeSnapshots] = await Promise.all([
+                    getCountFromServer(recordsRef),
+                    getCountFromServer(query(recordsRef, where('status', '==', '已稽核'))),
+                    getCountFromServer(query(recordsRef, where('prizeType', '==', 'cash'))),
+                    ...prizeNames.map(name => getCountFromServer(query(recordsRef, where('prizeName', '==', name))))
+                ]);
+                const total = totalSnapshot.data().count;
+                const counts = prizeNames.map((name, i) => [name, prizeSnapshots[i].data().count]);
+                document.getElementById('statTotalCount').textContent = total;
+                document.getElementById('stat9折Count').textContent = counts[0][1];
+                document.getElementById('statCashCount').textContent = cashSnapshot.data().count;
+                document.getElementById('statApprovedCount').textContent = auditedSnapshot.data().count;
+                document.getElementById('breakdownStatsGrid').innerHTML = counts.map(([name, count]) => {
+                    const percentage = total ? ((count / total) * 100).toFixed(1) : '0.0';
+                    return `<div class="bg-amber-50/80 rounded-2xl p-3.5 sm:p-4 border border-amber-300 text-center space-y-1.5 shadow-sm"><span class="text-xs font-bold text-castle-redDark block">${name}</span><div class="text-xl sm:text-2xl font-black text-castle-redDark">${count} 位</div><div class="text-[10px] text-stone-700">佔比 ${percentage}%</div></div>`;
+                }).join('');
+            } catch (err) {
+                console.error('全域統計讀取失敗', err);
+                document.getElementById('breakdownStatsGrid').textContent = `全域統計讀取失敗：${err.code || err.message}`;
+            }
+        }
+        window.refreshAdminCounts = refreshAdminCounts;
+
+        window.runCloudDiagnostic = async function() {
+            if (!auth || !db || !recordsRef) {
+                showCustomModal('尚未初始化 Firebase，請重新整理網頁。', '雲端診斷', 'warning');
+                return;
+            }
+            const uid = auth.currentUser?.uid ? '匿名驗證成功' : '尚未登入';
+            try {
+                const response = await getDocFromServer(doc(recordsRef, '__connection_check__'));
+                setCloudStatus(true, '');
+                showCustomModal(`專案：${FIREBASE_PROJECT_ID}\n身分驗證：${uid}\nFirestore 伺服器讀取：成功\n測試文件：${response.exists() ? '存在' : '不存在（正常）'}\n注意：此檢查不會寫入或修改客戶資料。`, '雲端診斷成功', 'success');
+            } catch (err) {
+                showCloudError('雲端診斷失敗', err);
+            }
         };
 
         function showCustomModal(message, title = "提示訊息", type = "info") {
