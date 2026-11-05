@@ -821,7 +821,7 @@ function getRandomWinningPrize() {
                 recordsRef = collection(db, ...recordsCollectionPath);
                 // 啟動時只讀取一個不存在的診斷文件，不再訂閱全體中獎資料。
                 // 伺服器回應「文件不存在」仍代表資料庫可讀取。
-                await getDocFromServer(doc(recordsRef, '__connection_check__'));
+                await getDocFromServer(doc(recordsRef, 'connection_check_test'));
                 setCloudStatus(true, '');
             } catch (err) {
                 console.error('Firebase 初始化或登入失敗:', err);
@@ -1472,7 +1472,7 @@ function getRandomWinningPrize() {
             }
             const uid = auth.currentUser?.uid ? '匿名驗證成功' : '尚未登入';
             try {
-                const response = await getDocFromServer(doc(recordsRef, '__connection_check__'));
+                const response = await getDocFromServer(doc(recordsRef, 'connection_check_test'));
                 setCloudStatus(true, '');
                 showCustomModal(`專案：${FIREBASE_PROJECT_ID}\n身分驗證：${uid}\nFirestore 伺服器讀取：成功\n測試文件：${response.exists() ? '存在' : '不存在（正常）'}\n注意：此檢查不會寫入或修改客戶資料。`, '雲端診斷成功', 'success');
             } catch (err) {
