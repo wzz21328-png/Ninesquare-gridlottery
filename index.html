@@ -111,7 +111,7 @@
 
     <div class="bg-gradient-to-r from-castle-redDark via-castle-red to-castle-redDark text-white py-2 px-4 text-xs sm:text-sm font-bold tracking-wider overflow-hidden shadow-md shrink-0">
         <div class="whitespace-nowrap animate-marquee flex items-center space-x-12">
-            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 滿額專屬九宮格抽獎機好禮大放送 ✨ 祝各位中大獎 ✨ 調光簾單窗只要$1111 ✨ 第兩件折$800 ✨ 早鳥享整單9折 ✨ 現場下訂再享專屬折扣 ✨</span>
+            <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i>✨ 微笑城堡窗簾 ✨ 滿額專屬九宮格抽獎機好禮大放送 ✨ 祝各位中大獎 ✨ 滿兩件折$1200 ✨ 早鳥享整單88折 ✨ 現場下訂再享專屬折扣 ✨</span>
             <span><i class="fa-solid fa-crown text-castle-gold mr-2"></i> 滿額幸運好禮：超級大獎(9折)、頭獎(1000元)、二獎(800元)、三獎(600元)、四獎(500元) 直接折給你啦！</span>
         </div>
     </div>
@@ -160,7 +160,7 @@
             </span>
 
             <h2 class="font-serif text-2xl sm:text-4xl md:text-5xl font-black gold-gradient-text tracking-tight text-center">
-                微笑城堡九宮格抽獎機
+                超級星期11九宮格抽獎機
             </h2>
 
 <div class="w-full flex justify-center items-center">
@@ -497,8 +497,8 @@
                 </div>
 
                 <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 text-xs text-stone-700 bg-amber-50">
-                    <span id="adminPageInfo" aria-live="polite">後台預設每頁 50 筆；若舊紀錄未顯示，請按「載入全部歷史紀錄」</span>
-                    <button id="adminNextPageBtn" type="button" onclick="loadAdminPage(false)" disabled class="px-3 py-2 rounded-lg bg-castle-red text-white font-bold disabled:opacity-40">下一頁（最多 50 筆）</button>
+                    <span id="adminPageInfo" aria-live="polite">後台每頁 10 筆；依寫入時間排序。舊資料缺時間欄位時請使用歷史查詢。</span>
+                    <button id="adminNextPageBtn" type="button" onclick="loadAdminPage(false)" disabled class="px-3 py-2 rounded-lg bg-castle-red text-white font-bold disabled:opacity-40">下一頁（最多 10 筆）</button>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[1050px]">
@@ -694,7 +694,7 @@
         let cloudReady = false;
         let cloudError = '';
         let recordsRef = null;
-        const ADMIN_PAGE_SIZE = 50;
+        const ADMIN_PAGE_SIZE = 10;
         let adminLastVisible = null;
         let adminHasMore = false;
         let adminPageNumber = 0;
@@ -718,14 +718,19 @@
         const getCampaign = id => campaigns.find(c => c.id === id) || DEFAULT_CAMPAIGNS[0];
         const campaignOf = r => r.campaignId || LEGACY_ID;
         const getCampaignName = id => getCampaign(id).name;
+        // 最新寫入優先：先在 Firestore 排序，才限制單頁 10 筆。
+        // 舊資料如缺 createdAtMs，Firestore 的 orderBy 不會回傳該文件；
+        // 請用「載入全部歷史紀錄」回查，或在備份後進行一次性時間欄位補齊。
         function campaignQuery(id, n = ADMIN_PAGE_SIZE, cursor = null) {
             let pieces;
-            if (id === 'all') pieces = [orderBy(documentId())];
-            else if (id === LEGACY_ID) pieces = [orderBy(documentId()), startAt('0'), endAt('9\uf8ff')];
-            else pieces = [where('campaignId','==',id), orderBy(documentId())];
+            if (id === 'all') pieces = [orderBy('createdAtMs', 'desc')];
+            else if (id === LEGACY_ID) {
+                // 舊活動原始文件無 campaignId；先按文件 ID 相容查詢。
+                // 若要這一期也完全依時間分頁，需先補齊舊文件 campaignId/createdAtMs。
+                pieces = [orderBy(documentId()), startAt('0'), endAt('9\uf8ff')];
+                if (cursor) pieces = [orderBy(documentId()), startAfter(cursor), endAt('9\uf8ff')];
+            } else pieces = [where('campaignId','==',id), orderBy('createdAtMs','desc')];
             if (cursor && id !== LEGACY_ID) pieces.push(startAfter(cursor));
-            // Legacy 用 documentId range 查詢。為相容分頁，legacy 額外處理 startAfter。
-            if (cursor && id === LEGACY_ID) pieces = [orderBy(documentId()), startAfter(cursor), endAt('9\uf8ff')];
             pieces.push(limit(n));
             return query(recordsRef, ...pieces);
         }
@@ -1533,7 +1538,7 @@ function getRandomWinningPrize() {
             showCustomModal(`${help}\n錯誤：${diagnosticResult}`, title, 'warning');
         }
 
-        // 平時只載入 50 筆；查詢錯誤時保留原有畫面，並顯示具體原因。
+        // 平時只載入 10 筆；查詢錯誤時保留原有畫面，並顯示具體原因。
         async function loadAdminPage(reset = false) {
             if (!isAdminLoggedIn || !requireCloud() || adminBusy) return;
             adminBusy = true;
@@ -1543,16 +1548,14 @@ function getRandomWinningPrize() {
             if (info) info.textContent = '正在向 Firebase 載入抽獎紀錄…';
             try {
                 const cursor = reset ? null : adminLastVisible;
-                // 不要求舊資料具有 createdAtMs 等欄位，依 Firestore 文件 ID 分頁。
+                // 新版依伺服器 createdAtMs 倒序分頁；舊活動仍採文件 ID 相容查詢。
                 const q=campaignQuery(adminCampaignId,ADMIN_PAGE_SIZE,cursor);
                 let snapshot;
                 try {
                     snapshot = await getDocsFromServer(q);
                 } catch (primaryError) {
-                    // 對部分舊資料庫規則/索引設定，嘗試不指定排序的原生集合查詢。
-                    if (cursor) throw primaryError;
-                    console.warn('文件 ID 排序查詢失敗，改以原生集合查詢：', primaryError);
-                    snapshot = await getDocsFromServer(campaignQuery(adminCampaignId,ADMIN_PAGE_SIZE));
+                    // 不默默退回其他排序，否則看似「最新 10 筆」實際不是最新。
+                    throw primaryError;
                 }
                 const loaded = snapshot.docs.filter(isRecordDoc).map(d => ({ ...d.data(), id: d.id, phone: d.data().phone || d.id, campaignId: d.data().campaignId || LEGACY_ID }));
                 adminHistoricalMode = false;
@@ -1564,7 +1567,7 @@ function getRandomWinningPrize() {
                 updateStatsAndTable();
                 if (info) info.textContent = snapshot.empty
                     ? '這個資料集合目前查無文件；請確認 Firebase 控制台的資料路徑，或點「載入全部歷史紀錄」再次查詢。'
-                    : `成功載入 ${snapshot.size} 筆｜第 ${adminPageNumber} 頁｜如需查看舊紀錄可點「載入全部歷史紀錄」`;
+                    : `成功載入 ${snapshot.size} 筆｜第 ${adminPageNumber} 頁｜${adminCampaignId===LEGACY_ID?'舊活動相容排序（非全域時間排序）':'依寫入時間新到舊'}｜缺時間欄位的舊紀錄請使用歷史查詢`;
                 if (reset) await refreshAdminCounts(false);
             } catch (err) {
                 if (info) info.textContent = `後台讀取失敗：${err.code || 'unknown'} — ${err.message || err}。資料未刪除。`;
